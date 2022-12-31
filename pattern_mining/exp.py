@@ -71,9 +71,9 @@ def run_exp (concepts_file_path, output_base_path):
 
     for sup in min_support_params:
         output_path = os.path.join(output_base_path, 'exp_patterns_' + str(sup) + '.csv')
-        print('Arguments to the program: {} {} {} {} {}'.format(configs.dataset_name, concepts_file_path, 
+        print('Arguments to the program: {} {} {} {} {} {} {}'.format(configs.dataset_name, concepts_file_path, 
             num_concepts, num_patterns, remove_inactivated_patterns_num, output_path, sup))
-        res = subprocess.run(["g++", "exp/Explanations.cpp", "exp/Lighthouse.cpp", "-o", "program"], capture_output=True)
+        res = subprocess.run(["g++", "./exp/Explanations.cpp", "./exp/Lighthouse.cpp", "-o", "program"], capture_output=True)
         print('Compilation return code:', res.returncode)
         print('Compilation output:', res.stdout)
         print('Compilation error:', res.stderr)
