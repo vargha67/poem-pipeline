@@ -73,9 +73,15 @@ def run_exp (concepts_file_path, output_base_path):
         output_path = os.path.join(output_base_path, 'exp_patterns_' + str(sup) + '.csv')
         print('Arguments to the program: {} {} {} {} {}'.format(configs.dataset_name, concepts_file_path, 
             num_concepts, num_patterns, remove_inactivated_patterns_num, output_path, sup))
-        subprocess.run(["g++", "exp/Explanations.cpp", "exp/Lighthouse.cpp", "-o", "program"])
-        subprocess.run(["./program", configs.dataset_name, concepts_file_path, str(num_concepts), str(num_patterns), 
-            str(remove_inactivated_patterns_num), output_path, str(sup)])
+        res = subprocess.run(["g++", "exp/Explanations.cpp", "exp/Lighthouse.cpp", "-o", "program"], capture_output=True)
+        print('Compilation return code:', res.returncode)
+        print('Compilation output:', res.stdout)
+        print('Compilation error:', res.stderr)
+        res = subprocess.run(["./program", configs.dataset_name, concepts_file_path, str(num_concepts), str(num_patterns), 
+            str(remove_inactivated_patterns_num), output_path, str(sup)], capture_output=True)
+        print('Execution return code:', res.returncode)
+        print('Execution output:', res.stdout)
+        print('Execution error:', res.stderr)
         output_path_list.append(output_path)
 
     for path in output_path_list:
