@@ -396,7 +396,7 @@ def concept_attribution (dataset_path, model_file_path, result_path, concepts_fi
     channel_concept_map, channel_thresh_map, channels, concepts = load_channels_data(tally_path, thresholds_path)
 
     model = load_model(model_file_path)
-    model = model.to(device)
+    model = model.cuda()
 
     concepts_df, channels_df, acts_list, image_channels_counts_list = \
         extract_concepts(model, data_loader, channel_concept_map, channel_thresh_map, channels, concepts)

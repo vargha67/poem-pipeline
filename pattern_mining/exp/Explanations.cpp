@@ -4,7 +4,7 @@
 
 int main(int argc, char *argv[])
 {
-    if (argc != 6) {
+    if (argc != 8) {
 		cout << "Not enough arguments: " << argc << "\n";
         exit(-1);
 	}
@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
 					}
 					if (printTables)
 					{
-						A.printTable(baseKL, "exp_patterns.csv");
+						A.printTable(baseKL, patternsFile);
 					}
 				}
 			}

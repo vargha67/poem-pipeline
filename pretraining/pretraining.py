@@ -176,7 +176,7 @@ def pretrained_model (base_model_file=None):
 
 
 
-def train_epoch (device, model, optimizer, criterion, train_loader, valid_loader):
+def train_epoch (model, optimizer, criterion, train_loader, valid_loader):
     model.train()
     train_loss = 0
     train_acc = 0
@@ -184,8 +184,8 @@ def train_epoch (device, model, optimizer, criterion, train_loader, valid_loader
     train_size = 0
     
     for i, (images, labels) in tqdm(enumerate(train_loader)):
-        images = images.to(device)
-        labels = labels.to(device)
+        images = images.cuda()
+        labels = labels.cuda()
     
         optimizer.zero_grad()
         
@@ -217,8 +217,8 @@ def train_epoch (device, model, optimizer, criterion, train_loader, valid_loader
     
     with torch.no_grad():
         for i, (images, labels) in tqdm(enumerate(valid_loader)):
-            images = images.to(device)
-            labels = labels.to(device)
+            images = images.cuda()
+            labels = labels.cuda()
             
             #labels = labels.unsqueeze(1).float()
             output = model(images)
@@ -242,7 +242,7 @@ def train_epoch (device, model, optimizer, criterion, train_loader, valid_loader
 
 
 
-def train (device, model, model_path, train_loader, valid_loader): 
+def train (model, model_path, train_loader, valid_loader): 
     model_params = [p for p in model.parameters() if p.requires_grad]
     print('Number of params to learn:', len(model_params))
     
@@ -259,7 +259,7 @@ def train (device, model, model_path, train_loader, valid_loader):
     
     for e in range(configs.epochs):
         print('\nEpoch {}/{}'.format(e+1, configs.epochs))
-        train_loss, train_acc, val_loss, val_acc = train_epoch(device, model, optimizer, criterion, train_loader, valid_loader)
+        train_loss, train_acc, val_loss, val_acc = train_epoch(model, optimizer, criterion, train_loader, valid_loader)
         
         print('loss: {:.3f} - acc: {:.3f} - val loss: {:.3f} - val acc: {:.3f}'.format(train_loss, train_acc, val_loss, val_acc))
         
@@ -306,16 +306,16 @@ def plot_results (train_losses, train_accs, val_losses, val_accs):
 
 
 
-def pretrain_model (device, dataset_path, valid_dataset_path, base_model_file_path, model_file_path):
+def pretrain_model (dataset_path, valid_dataset_path, base_model_file_path, model_file_path):
     train_loader, valid_loader = prepare_data(dataset_path)
     save_data_subset(valid_loader.dataset, valid_dataset_path)
 
     model = pretrained_model(base_model_file_path)
 
     print(model)
-    model = model.to(device)
+    model = model.cuda()
 
-    train_losses, train_accs, val_losses, val_accs = train(device, model, model_file_path, train_loader, valid_loader)
+    train_losses, train_accs, val_losses, val_accs = train(model, model_file_path, train_loader, valid_loader)
 
     plot_results(train_losses, train_accs, val_losses, val_accs)
 
