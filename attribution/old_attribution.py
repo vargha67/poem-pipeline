@@ -148,10 +148,10 @@ def extract_concepts (model, data_loader, channel_concept_map, channel_thresh_ma
             images = images.numpy()
             acts = batch_activations[0]   # currently assume there is only one target layer
 
-            if i == 0:
-                print('images: {}, labels: {}, preds: {}'.format(images.shape, labels.shape, preds.shape))
-                print('batch_activations.shape: {} * {}'.format(len(batch_activations), batch_activations[0].shape))
-                print('paths:', paths)
+            # if i == 0:
+            #     print('images: {}, labels: {}, preds: {}'.format(images.shape, labels.shape, preds.shape))
+            #     print('batch_activations.shape: {} * {}'.format(len(batch_activations), batch_activations[0].shape))
+            #     print('paths:', paths)
 
             batch_concepts_counts, batch_channels_counts = \
                 extract_concepts_from_batch(acts, channel_concept_map, channel_thresh_map, channels, concepts)
@@ -167,9 +167,9 @@ def extract_concepts (model, data_loader, channel_concept_map, channel_thresh_ma
                 act = acts[j]
                 _, fname = os.path.split(path)
 
-                if i == 0 and j == 0:
-                    print('Image {} with label {}, pred {}, act shape {}, and concepts counts {}'
-                        .format(path, label, pred, act.shape, image_concepts_counts))
+                # if i == 0 and j == 0:
+                #     print('Image {} with label {}, pred {}, act shape {}, and concepts counts {}'
+                #         .format(path, label, pred, act.shape, image_concepts_counts))
                     
                 acts_list.append(act)
                 image_channels_counts_list.append(image_channels_counts)
@@ -263,7 +263,7 @@ def save_activation_images (image_index, image_path, image_fname, acts, image_ch
                             channel_thresh_map, concepts, output_dir):
     image_activated_channels = [k for k,v in image_channels_counts.items() if v > 0]
     if len(image_activated_channels) == 0:
-        print('Image {} with path {} has no activated channels!'.format(image_index, image_path))
+        # print('Image {} with path {} has no activated channels!'.format(image_index, image_path))
         return 0
 
     # # Un-normalizing the image back to its original form: 
@@ -286,8 +286,8 @@ def save_activation_images (image_index, image_path, image_fname, acts, image_ch
     # Normalizing the pixel values to (0, 255) range required later for saving the image: 
     image_min, image_max = np.min(image), np.max(image)
     image = (((image - image_min) / (image_max - image_min)) * 255).astype(np.uint8)
-    if image_index in [1,2]:
-        print('image_min: {}, image_max: {}, new_image.min: {}, new_image.max: {}'.format(image_min, image_max, np.min(image), np.max(image)))
+    # if image_index in [1,2]:
+    #     print('image_min: {}, image_max: {}, new_image.min: {}, new_image.max: {}'.format(image_min, image_max, np.min(image), np.max(image)))
 
     image_concept_channels = {con:[] for con in concepts}
     for ch in image_activated_channels:
@@ -307,8 +307,8 @@ def save_activation_images (image_index, image_path, image_fname, acts, image_ch
 
         top_channel_nums = sorted(lst, key=lambda x: x[1], reverse=True)[:configs.n_top_channels_per_concept]
         top_channels = [k for k,v in top_channel_nums]
-        if image_index in [1,2]:
-            print('Top channels for concept {}: {}'.format(con, top_channel_nums))
+        # if image_index in [1,2]:
+        #     print('Top channels for concept {}: {}'.format(con, top_channel_nums))
 
         for i,ch in enumerate(top_channels):
             ch_index = ch - 1
@@ -332,14 +332,14 @@ def save_activation_images (image_index, image_path, image_fname, acts, image_ch
             new_path = os.path.join(output_dir, new_fname)
 
             final_image = new_image.astype(np.uint8)
-            if should_print:
-                print('new_image.min: {}, new_image.max: {}, final_image.min: {}, final_image.max: {}'
-                    .format(np.min(new_image), np.max(new_image), np.min(final_image), np.max(final_image)))
+            # if should_print:
+            #     print('new_image.min: {}, new_image.max: {}, final_image.min: {}, final_image.max: {}'
+            #         .format(np.min(new_image), np.max(new_image), np.min(final_image), np.max(final_image)))
 
             imwrite(new_path, final_image)
             cnt += 1
     
-    print('Saved {} activation images for image {} with path {}'.format(cnt, image_index, image_path))
+    # print('Saved {} activation images for image {} with path {}'.format(cnt, image_index, image_path))
     return cnt
 
 
@@ -391,8 +391,8 @@ def save_image_concepts_dataset (concepts_df, channels_df, image_channels_counts
 def concept_attribution (dataset_path, model_file_path, result_path, concepts_file_path, channels_file_path, activation_images_path):
     data_loader = load_data(dataset_path)
 
-    tally_path = os.path.join(result_path, '/tally.csv')
-    thresholds_path = os.path.join(result_path, '/quantile.npy')
+    tally_path = os.path.join(result_path, 'tally.csv')
+    thresholds_path = os.path.join(result_path, 'quantile.npy')
     channel_concept_map, channel_thresh_map, channels, concepts = load_channels_data(tally_path, thresholds_path)
 
     model = load_model(model_file_path)

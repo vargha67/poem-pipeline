@@ -232,8 +232,8 @@ def compute_top_channel_concepts (model, segmodel, upfn, dataset, rq, seglabels,
 
     label_list = [labelcat for concept, label, labelcat, iou in unit_label_high if iou > configs.min_iou]
 
-    print(len(unit_label_high))
-    print(unit_label_high)
+    # print(len(unit_label_high))
+    # print(unit_label_high)
     
     return unit_label_high, label_list, level_high, level_low
 
@@ -243,14 +243,14 @@ def save_final_data (unit_label_high, label_list, level_high, level_low, result_
     display(IPython.display.SVG(experiment.graph_conceptcatlist(label_list)))
     experiment.save_conceptcat_graph(os.path.join(result_dir, 'concepts_high.svg'), label_list)
 
-    print('level_high.shape:', level_high.shape)
-    print('level_low.shape:', level_low.shape)
+    # print('level_high.shape:', level_high.shape)
+    # print('level_low.shape:', level_low.shape)
 
     high_quantiles = level_high.view(-1).cpu().numpy()
     low_quantiles = level_low.view(-1).cpu().numpy()
 
-    print('high_quantiles.shape:', high_quantiles.shape)
-    print('low_quantiles.shape:', low_quantiles.shape)
+    # print('high_quantiles.shape:', high_quantiles.shape)
+    # print('low_quantiles.shape:', low_quantiles.shape)
 
     experiment.dump_json_file(os.path.join(result_dir, 'report.json'), dict(
             header=dict(
@@ -270,13 +270,13 @@ def save_final_data (unit_label_high, label_list, level_high, level_low, result_
     # print('quantiles.shape:', quantiles.shape)
     numpy.save(os.path.join(result_dir, 'channel_quantiles.npy'), high_quantiles)
 
-    print('Channel high quantiles:')
-    for i,q in enumerate(list(high_quantiles)):
-        print('{}: {}'.format(i,q))
+    # print('Channel high quantiles:')
+    # for i,q in enumerate(list(high_quantiles)):
+    #     print('{}: {}'.format(i,q))
 
-    print('Channel low quantiles:')
-    for i,q in enumerate(list(low_quantiles)):
-        print('{}: {}'.format(i,q))
+    # print('Channel low quantiles:')
+    # for i,q in enumerate(list(low_quantiles)):
+    #     print('{}: {}'.format(i,q))
     
 
 
@@ -289,7 +289,7 @@ def concept_identification (dataset_path, model_file_path, result_path):
     sample_size = len(dataset)
 
     print('Inspecting layer %s of model %s on dataset %s' % (configs.target_layer, configs.model_name, configs.dataset_name))
-    print(model)
+    # print(model)
 
     args = EasyDict(model=configs.model_name, dataset=configs.dataset_name, seg=configs.seg_model_name, 
                     layer=configs.target_layer, quantile=configs.activation_high_thresh)
@@ -297,31 +297,32 @@ def concept_identification (dataset_path, model_file_path, result_path):
     renorm = renormalize.renormalizer(dataset, target='zc')
     segmodel, seglabels, segcatlabels = experiment.setting.load_segmenter(configs.seg_model_name)
 
-    print('Segmentation labels:')
-    for i,lbl in enumerate(seglabels):
-        print('{}: {} from category {}'.format(i, lbl, segcatlabels[i]))
+    # print('Segmentation labels:')
+    # for i,lbl in enumerate(seglabels):
+    #     print('{}: {} from category {}'.format(i, lbl, segcatlabels[i]))
 
-    batch_indices = [10, 20, 30, 40, 50, 60, 70, 80]
-    batch = torch.cat([dataset[i][0][None,...] for i in batch_indices])
-    show_sample_images(model, dataset, batch, batch_indices, classlabels)
+    # batch_indices = [10, 20, 30, 40, 50, 60, 70, 80]
+    # batch = torch.cat([dataset[i][0][None,...] for i in batch_indices])
+    # show_sample_images(model, dataset, batch, batch_indices, classlabels)
 
-    show_sample_segmentations(segmodel, dataset, batch, renorm)
+    # show_sample_segmentations(segmodel, dataset, batch, renorm)
 
-    show_sample_heatmaps(model, dataset, batch)
+    # show_sample_heatmaps(model, dataset, batch)
 
     rq = compute_tally_quantile(model, dataset, upfn, sample_size, result_path)
 
     topk = compute_tally_topk(model, dataset, sample_size, result_path)
 
-    show_sample_image_activation(model, dataset, rq, topk, classlabels, sample_unit_number=2, sample_image_index=0)
+    # show_sample_image_activation(model, dataset, rq, topk, classlabels, sample_unit_number=2, sample_image_index=0)
 
     unit_images = save_top_channel_images(model, dataset, rq, topk, result_path)
-    sample_unit_numbers = [10, 20, 30, 40]
-    show_sample_channel_images(unit_images, sample_unit_numbers)
+
+    # sample_unit_numbers = [10, 20, 30, 40]
+    # show_sample_channel_images(unit_images, sample_unit_numbers)
 
     unit_label_high, label_list, level_high, level_low = compute_top_channel_concepts(model, segmodel, upfn, 
         dataset, rq, seglabels, segcatlabels, sample_size, renorm, result_path)
 
-    show_sample_channel_images(unit_images, sample_unit_numbers, unit_label_high)
+    # show_sample_channel_images(unit_images, sample_unit_numbers, unit_label_high)
 
     save_final_data(unit_label_high, label_list, level_high, level_low, result_path)

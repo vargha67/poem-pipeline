@@ -299,8 +299,8 @@ def deterministic_local_search(list_rules, df, Y, lambda_array, epsilon):
         s1 = func_evaluation(soln_set, list_rules, df, Y, lambda_array)
         s2 = 0   # func_evaluation(set(range(len(list_rules))) - soln_set, list_rules, df, Y, lambda_array)
         
-        print(s1)
-        print(s2)
+        # print(s1)
+        # print(s2)
         
         if s1 >= s2:
             return soln_set, s1
@@ -528,7 +528,7 @@ def evaluate_predictions(rules, X, Y_list, class_rates, base_labels):
         true_y = [1 if k==y else 0 for k in classes]
         true_labels.append(true_y)
         
-    print('True, prediction, and base labels:', list(zip(true_labels, pred_labels, conf_labels, base_labels))[:5])
+    # print('True, prediction, and base labels:', list(zip(true_labels, pred_labels, conf_labels, base_labels))[:5])
         
     base_KL = KL_divergence(true_labels, base_labels)
     final_KL = KL_divergence(true_labels, conf_labels)
@@ -636,7 +636,7 @@ def run_ids (concepts_file_path, output_base_path):
     param_combinations = list(itertools.product(*param_values))
     output_path_list = []
     results = []
-    print('Parameter combinations:', param_combinations)
+    # print('Parameter combinations:', param_combinations)
 
     for comb in param_combinations:
         params = {k:v for k,v in zip(param_keys, comb)}

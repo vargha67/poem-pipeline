@@ -130,7 +130,7 @@ def evaluate_predictions(Y_list, classes, base_labels, preds, pred_leaves, leave
         true_y = [1 if k==y else 0 for k in classes]
         true_labels.append(true_y)
         
-    print('True, prediction, and base labels:', list(zip(true_labels, pred_labels, conf_labels, base_labels, pred_leaves))[:5])
+    # print('True, prediction, and base labels:', list(zip(true_labels, pred_labels, conf_labels, base_labels, pred_leaves))[:5])
         
     base_KL = KL_divergence(true_labels, base_labels)
     final_KL = KL_divergence(true_labels, conf_labels)
@@ -186,7 +186,7 @@ def train_evaluate_tree(X, Y, Y_true, classes, base_labels, model_params, featur
         item['accuracy'] = acc / conf
         class_covers = item['class_covers']
         leaves_stats[n]['class_covers'] = {k:(v/sup) for k,v in class_covers.items()}
-    print('Leaves stats:', leaves_stats)
+    # print('Leaves stats:', leaves_stats)
     
     n_nodes, n_leaves, max_depth = count_tree_leaves(model)
     print('Tree has {} nodes, {} leaves, and max depth of {}'.format(n_nodes, n_leaves, max_depth))
@@ -201,7 +201,7 @@ def train_evaluate_tree(X, Y, Y_true, classes, base_labels, model_params, featur
     print('Time for training and evaluating the tree:', t2-t1)
     
     tree_txt = tree.export_text(model, feature_names=feature_names, show_weights=True)
-    print(tree_txt)
+    # print(tree_txt)
     
     #fig = plt.figure(figsize=(25,20))
     #tree.plot_tree(model, feature_names=feature_names, class_names=configs.class_names, filled=True)
@@ -235,7 +235,7 @@ def run_cart (concepts_file_path, output_base_path):
 
     output_path_list = []
     results = []
-    print('Parameter combinations:', param_combinations)
+    # print('Parameter combinations:', param_combinations)
 
     for comb in param_combinations:
         params = {k:v for k,v in zip(param_keys, comb)}

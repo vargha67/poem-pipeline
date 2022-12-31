@@ -358,7 +358,7 @@ def display_patterns (all_patterns, concept_cols):
 
     for col in configs.meta_cols:
         renamed_cols[col] = col.upper()
-        if col is 'pred':
+        if col == 'pred':
             renamed_cols[col] = 'PREDICTION'
 
     all_patterns_df.rename(columns=renamed_cols, inplace=True)

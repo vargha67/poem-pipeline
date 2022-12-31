@@ -229,19 +229,19 @@ def extract_concepts_from_image (act, upact, seg, path, channels_map, seg_concep
                     overlap_mask = ch_upact_high_mask & target_seg_concept_mask
                     num_overlap = np.sum(overlap_mask.numpy())
 
-                    if configs.overlap_mode is 'overlap_to_union_ratio':
+                    if configs.overlap_mode == 'overlap_to_union_ratio':
                         union_mask = ch_upact_high_mask | target_seg_concept_mask
                         num_union = np.sum(union_mask.numpy())
                         overlap_ratio = num_overlap / num_union
                         if overlap_ratio >= configs.min_overlap_ratio:
                             is_high = True
 
-                    elif configs.overlap_mode is 'overlap_to_activation_ratio':
+                    elif configs.overlap_mode == 'overlap_to_activation_ratio':
                         overlap_ratio = num_overlap / num_high_thresh
                         if overlap_ratio >= configs.min_overlap_ratio:
                             is_high = True
 
-                    elif configs.overlap_mode is 'overlap_to_segmentation_ratio':
+                    elif configs.overlap_mode == 'overlap_to_segmentation_ratio':
                         overlap_ratio = num_overlap / num_concept_seg
                         if overlap_ratio >= configs.min_overlap_ratio:
                             is_high = True
@@ -282,19 +282,19 @@ def extract_concepts_from_image (act, upact, seg, path, channels_map, seg_concep
                     overlap_mask = ch_upact_mid_mask & target_seg_concept_mask
                     num_overlap = np.sum(overlap_mask.numpy())
 
-                    if configs.overlap_mode is 'overlap_to_union_ratio':
+                    if configs.overlap_mode == 'overlap_to_union_ratio':
                         union_mask = ch_upact_mid_mask | target_seg_concept_mask
                         num_union = np.sum(union_mask.numpy())
                         overlap_ratio = num_overlap / num_union
                         if overlap_ratio >= configs.min_overlap_ratio:
                             is_mid = True
 
-                    elif configs.overlap_mode is 'overlap_to_activation_ratio':
+                    elif configs.overlap_mode == 'overlap_to_activation_ratio':
                         overlap_ratio = num_overlap / num_mid_thresh
                         if overlap_ratio >= configs.min_overlap_ratio:
                             is_mid = True
 
-                    elif configs.overlap_mode is 'overlap_to_segmentation_ratio':
+                    elif configs.overlap_mode == 'overlap_to_segmentation_ratio':
                         overlap_ratio = num_overlap / num_concept_seg
                         if overlap_ratio >= configs.min_overlap_ratio:
                             is_mid = True
@@ -378,9 +378,9 @@ def extract_concepts (model, segmodel, upfn, renorm, data_loader, channels_map, 
 
             acts = acts * wgrads
             acts = F.relu(acts)
-            if i == 0:
-                print('output: {}, preds: {}, one_hot: {}, grads: {}, wgrads: {}'
-                    .format(output.shape, preds.shape, one_hot.shape, grads.shape, wgrads.shape))
+            # if i == 0:
+            #     print('output: {}, preds: {}, one_hot: {}, grads: {}, wgrads: {}'
+            #         .format(output.shape, preds.shape, one_hot.shape, grads.shape, wgrads.shape))
 
         total_acc += (preds == labels_gpu).float().sum()
         preds = preds.cpu().numpy()
@@ -394,10 +394,10 @@ def extract_concepts (model, segmodel, upfn, renorm, data_loader, channels_map, 
         if configs.check_seg_overlap:
             segs = segmodel.segment_batch(renorm(images_gpu), downsample=4).cpu()
 
-        if i == 0:
-            print('images: {}, labels: {}, preds: {}'.format(images.shape, labels.shape, preds.shape))
-            print('acts: {}, upacts: {}, grads: {}, segs: {}'
-                .format(acts.shape, upacts.shape, grads.shape if grads != None else 0, segs.shape if segs != None else 0))
+        # if i == 0:
+        #     print('images: {}, labels: {}, preds: {}'.format(images.shape, labels.shape, preds.shape))
+        #     print('acts: {}, upacts: {}, grads: {}, segs: {}'
+        #         .format(acts.shape, upacts.shape, grads.shape if grads != None else 0, segs.shape if segs != None else 0))
 
         for j in range(images.shape[0]):
             num_images += 1
@@ -423,11 +423,11 @@ def extract_concepts (model, segmodel, upfn, renorm, data_loader, channels_map, 
             image_concepts, image_channels, image_concepts_counts, image_channels_counts = \
                 extract_concepts_from_image(act, upact, seg, path, channels_map, seg_concept_index_map, channels, concepts, image_threshs)
 
-            if (i == 0) and (j == 0):
-                print('Image {} with label {}, pred {}, act {}, upact {}, high threshold {}, low threshold {}, and concepts {}'
-                    .format(path, label, pred, act.shape, upact.shape, image_threshs['high_thresh'], image_threshs['low_thresh'], image_concepts))
-                print('Image {} with min activation {}, max activation {}, and thresholds {}'.format(fname, act.min(), act.max(), image_threshs))
-                plot_activation_histogram(act)
+            # if (i == 0) and (j == 0):
+            #     print('Image {} with label {}, pred {}, act {}, upact {}, high threshold {}, low threshold {}, and concepts {}'
+            #         .format(path, label, pred, act.shape, upact.shape, image_threshs['high_thresh'], image_threshs['low_thresh'], image_concepts))
+            #     print('Image {} with min activation {}, max activation {}, and thresholds {}'.format(fname, act.min(), act.max(), image_threshs))
+            #     plot_activation_histogram(act)
 
             # Test visualizations: 
             # if configs.check_seg_overlap and configs.check_gradients and (fname == '00000133.jpg'):
@@ -435,11 +435,10 @@ def extract_concepts (model, segmodel, upfn, renorm, data_loader, channels_map, 
             #     plot_sample_image_activations(data_loader.dataset, image, channel, seg, raw_act, grad, act, upact, channels_map, seg_concept_index_map, image_threshs)
             #     return
 
-            if configs.check_seg_overlap and configs.check_gradients and ('sea' in image_concepts) and (image_concepts['sea'] == configs.high_value):
-                channel = 144
-                print('Image {} with pred {} and label {}'.format(fname, pred, label))
-                plot_sample_image_activations(data_loader.dataset, image, channel, seg, raw_act, grad, act, upact, channels_map, seg_concept_index_map, image_threshs)
-                #return
+            # if configs.check_seg_overlap and configs.check_gradients and ('sea' in image_concepts) and (image_concepts['sea'] == configs.high_value):
+            #     channel = 144
+            #     print('Image {} with pred {} and label {}'.format(fname, pred, label))
+            #     plot_sample_image_activations(data_loader.dataset, image, channel, seg, raw_act, grad, act, upact, channels_map, seg_concept_index_map, image_threshs)
 
             acts_list.append(act)
             image_channels_counts_list.append(image_channels_counts)
@@ -533,12 +532,12 @@ def filter_extracted_concepts (concepts_df, channels_df, channels_map):
 def save_activation_images_of_image (iv, image_index, image_path, image_fname, acts, img_concepts_row, img_channels_row, 
                                      image_channels_counts, channels_map, concepts, output_dir, image_threshs=None):
     acts = acts[None, :, :, :]   # as required by iv.masked_image
-    if image_index == 1:
-        print('acts.shape in save_activation_images:', acts.shape)
+    # if image_index == 1:
+    #     print('acts.shape in save_activation_images:', acts.shape)
 
     image_activated_channels = [k for k,v in image_channels_counts.items() if v > 0]   # Only keep those channels which have been either mid or high for the image
     if len(image_activated_channels) == 0:
-        print('Image {} with path {} has no activated channels!'.format(image_index, image_path))
+        # print('Image {} with path {} has no activated channels!'.format(image_index, image_path))
         return 0
 
     image_concept_channels = {con:[] for con in concepts}
@@ -575,8 +574,8 @@ def save_activation_images_of_image (iv, image_index, image_path, image_fname, a
 
         top_channel_nums = sorted(lst, key=lambda x: x[1], reverse=True)[:configs.n_top_channels_per_concept]
         top_channels = [k for k,v in top_channel_nums]
-        if image_index == 1:
-            print('Top channels for concept {}: {}'.format(con, top_channel_nums))
+        # if image_index == 1:
+        #     print('Top channels for concept {}: {}'.format(con, top_channel_nums))
 
         for i,ch in enumerate(top_channels):
             ch_index = ch - 1
@@ -609,7 +608,7 @@ def save_activation_images_of_image (iv, image_index, image_path, image_fname, a
 
             new_image.save(new_path, optimize=True, quality=99)
 
-    print('Saved {} activation images for image {} with path {}'.format(len(images), image_index, image_path))
+    # print('Saved {} activation images for image {} with path {}'.format(len(images), image_index, image_path))
     return len(images)
 
 
@@ -670,8 +669,8 @@ def concept_attribution (dataset_path, model_file_path, result_path, concepts_fi
 
     dataset, data_loader = load_data(dataset_path)
 
-    tally_path = os.path.join(result_path, '/report.json')
-    thresholds_path = os.path.join(result_path, '/channel_quantiles.npy')
+    tally_path = os.path.join(result_path, 'report.json')
+    thresholds_path = os.path.join(result_path, 'channel_quantiles.npy')
     channels_map, channels, concepts = load_channels_data(tally_path)
 
     args = EasyDict(model=configs.model_name, dataset=configs.dataset_name, seg=configs.seg_model_name, 

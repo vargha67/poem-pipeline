@@ -311,8 +311,6 @@ def pretrain_model (dataset_path, valid_dataset_path, base_model_file_path, mode
     save_data_subset(valid_loader.dataset, valid_dataset_path)
 
     model = pretrained_model(base_model_file_path)
-
-    print(model)
     model = model.cuda()
 
     train_losses, train_accs, val_losses, val_accs = train(model, model_file_path, train_loader, valid_loader)
