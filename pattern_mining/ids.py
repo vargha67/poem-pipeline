@@ -620,7 +620,7 @@ def save_rules(solution_rules, feature_names, n_rows, output_path):
 
 def run_ids (concepts_file_path, output_base_path):
     t_start = datetime.datetime.now()
-    X, Y, Y_true = load_concepts_data(concepts_file_path, 'pred', 'label', ['id', 'file', 'path'])
+    X, Y, Y_true = load_concepts_data(concepts_file_path, 'pred', 'label', ['id', 'file', 'path'], to_str=True)
 
     n_rows = len(Y.index)
     feature_names = list(X.columns)

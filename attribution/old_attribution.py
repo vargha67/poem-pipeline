@@ -245,7 +245,7 @@ def filter_extracted_concepts (concepts_df, channels_df, channel_concept_map):
     print('Final concepts after filtering ({}): {}'.format(len(filtered_concepts), filtered_concepts))
 
     filtered_concepts_df = pd.concat([cons_df, meta_df], axis=1)
-    display(filtered_concepts_df.head())
+    # display(filtered_concepts_df.head())
 
     channel_cols = list(set(channels_df.columns) - set(meta_cols))
     filtered_channels = [ch for ch in channel_cols if (ch in channel_concept_map) and (channel_concept_map[ch] in filtered_concepts)]
@@ -253,7 +253,7 @@ def filter_extracted_concepts (concepts_df, channels_df, channel_concept_map):
 
     cols_to_keep = filtered_channels + meta_cols
     filtered_channels_df = channels_df[cols_to_keep]
-    display(filtered_channels_df.head())
+    # display(filtered_channels_df.head())
 
     return filtered_concepts_df, filtered_channels_df, filtered_concepts, filtered_channels
 
