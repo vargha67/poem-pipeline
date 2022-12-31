@@ -117,7 +117,7 @@ def save_top_channel_images (model, dataset, rq, topk, result_dir):
     
     image_row_width = 5
     pbar.descnext('saving images')
-    imgsave.save_image_set(unit_images, resfile('image/unit%d.jpg'),
+    imgsave.save_image_set(unit_images, os.path.join(result_dir, 'image/unit%d.jpg'),
         sourcefile=os.path.join(result_dir, 'top%dimages.npz' % image_row_width))
     
     return unit_images
