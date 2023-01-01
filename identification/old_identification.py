@@ -1,7 +1,8 @@
 import configs
 # from old_dissection import settings
-import old_dissection.settings as settings
-from old_dissection import main
+# from old_dissection import main
+import settings
+import main
 
 
 
