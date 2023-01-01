@@ -2,7 +2,7 @@ import configs
 from pattern_mining.pattern_utils import find_images_supporting_pattern, find_images_matching_pattern
 import subprocess
 import pandas as pd
-import os
+import os, time
 
 
 
@@ -82,6 +82,7 @@ def run_exp (concepts_file_path, output_base_path):
         print('Arguments to the program: {} {} {} {} {} {} {}'.format(configs.dataset_name, concepts_file_path, 
             num_concepts, num_patterns, remove_inactivated_patterns_num, output_path, sup))
 
+        time.sleep(3)
         res = subprocess.run(["./program", configs.dataset_name, concepts_file_path, str(num_concepts), str(num_patterns), 
             str(remove_inactivated_patterns_num), output_path, str(sup)], capture_output=True, universal_newlines=True)
         print('Execution return code:', res.returncode)
