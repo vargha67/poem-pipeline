@@ -28,6 +28,7 @@ INDEX_FILE = 'index.csv'
 
 
 def init_settings():
+	print('DATA_DIRECTORY:', DATA_DIRECTORY)
 	global FEATURE_NAMES
 
 	if MODEL == 'custom':
