@@ -21,8 +21,12 @@ def hook_feature(module, input, output):
 class FeatureOperator:
 
     def __init__(self):
+        print(settings.OUTPUT_FOLDER)
         if not os.path.exists(settings.OUTPUT_FOLDER):
             os.makedirs(os.path.join(settings.OUTPUT_FOLDER, 'image'))
+        print(settings.DATA_DIRECTORY)
+        print(settings.MODEL_FILE)
+        print(settings.DATASET)
         self.data = SegmentationData(settings.DATA_DIRECTORY, categories=settings.CATAGORIES)
         self.loader = SegmentationPrefetcher(self.data,categories=['image'],once=True,batch_size=settings.BATCH_SIZE)
         self.mean = [109.5388,118.6897,124.6901]
