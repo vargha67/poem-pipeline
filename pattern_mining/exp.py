@@ -69,21 +69,21 @@ def run_exp (concepts_file_path, output_base_path):
     remove_inactivated_patterns_num = 1 if configs.remove_inactivated_patterns else 0
     output_path_list = []
 
+    current_path = os.path.abspath(os.path.dirname(__file__))
+    explanations_path = os.path.join(current_path, 'exp', 'Explanations.cpp')
+    lighthouse_path = os.path.join(current_path, 'exp', 'Lighthouse.cpp')
+    res = subprocess.run(["g++", explanations_path, lighthouse_path, "-o", "program"], capture_output=True, universal_newlines=True)
+    print('Compilation return code:', res.returncode)
+    print('Compilation output:', res.stdout)
+    print('Compilation error:', res.stderr)
+
     for sup in min_support_params:
         output_path = os.path.join(output_base_path, 'exp_patterns_' + str(sup) + '.csv')
         print('Arguments to the program: {} {} {} {} {} {} {}'.format(configs.dataset_name, concepts_file_path, 
             num_concepts, num_patterns, remove_inactivated_patterns_num, output_path, sup))
-        
-        current_path = os.path.abspath(os.path.dirname(__file__))
-        explanations_path = os.path.join(current_path, 'exp', 'Explanations.cpp')
-        lighthouse_path = os.path.join(current_path, 'exp', 'Lighthouse.cpp')
-        res = subprocess.run(["g++", explanations_path, lighthouse_path, "-o", "program"], capture_output=True)
-        print('Compilation return code:', res.returncode)
-        print('Compilation output:', res.stdout)
-        print('Compilation error:', res.stderr)
 
         res = subprocess.run(["./program", configs.dataset_name, concepts_file_path, str(num_concepts), str(num_patterns), 
-            str(remove_inactivated_patterns_num), output_path, str(sup)], capture_output=True)
+            str(remove_inactivated_patterns_num), output_path, str(sup)], capture_output=True, universal_newlines=True)
         print('Execution return code:', res.returncode)
         print('Execution output:', res.stdout)
         print('Execution error:', res.stderr)
