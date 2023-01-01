@@ -47,15 +47,15 @@ def update_settings(model_name, dataset_name, num_classes, target_layer, activat
 	global INDEX_FILE
 
 	MODEL = model_name
-    DATASET = dataset_name
-    NUM_CLASSES = num_classes
-    FEATURE_NAMES = [target_layer]
-    QUANTILE = 1.0 - activation_high_thresh
-    SEG_THRESHOLD = min_iou
-    SCORE_THRESHOLD = min_iou
-    OUTPUT_FOLDER = result_path
-    MODEL_FILE = model_file_path
-    DATA_DIRECTORY = dataset_path
+	DATASET = dataset_name
+	NUM_CLASSES = num_classes
+	FEATURE_NAMES = [target_layer]
+	QUANTILE = 1.0 - activation_high_thresh
+	SEG_THRESHOLD = min_iou
+	SCORE_THRESHOLD = min_iou
+	OUTPUT_FOLDER = result_path
+	MODEL_FILE = model_file_path
+	DATA_DIRECTORY = dataset_path
 
 	if MODEL == 'custom':
 		FEATURE_NAMES = ['conv_layer6']
