@@ -95,7 +95,7 @@ category_index_map = {
 }
 
 # Concept filtering settings: 
-filter_concepts_old = False
+filter_concepts_old = True
 filter_concepts = True
 low_variance_thresh = 0.99
 max_concepts = 10
