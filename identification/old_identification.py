@@ -1,12 +1,12 @@
 import configs
-from old_dissection import settings
+# from old_dissection import settings
+import old_dissection.settings as settings
 from old_dissection import main
 
 
 
 def concept_identification (dataset_path, model_file_path, result_path):
     print(configs.old_process)
-    settings.Test.x = 5
     settings.MODEL = configs.model_name
     settings.DATASET = configs.dataset_name
     settings.NUM_CLASSES = configs.num_classes
