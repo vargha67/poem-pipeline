@@ -2,11 +2,11 @@ import sys
 from utils import extract_class_titles
 
 
-try:
-    sys.path.append('./new_dissection')
-    sys.path.append('./old_dissection')
-except Exception as ex:
-    print('Exception in adding to sys path:', ex)
+# try:
+#     sys.path.append('./new_dissection')
+#     sys.path.append('./old_dissection')
+# except Exception as ex:
+#     print('Exception in adding to sys path:', ex)
 
 
 model_settings = {

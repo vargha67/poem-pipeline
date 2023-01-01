@@ -26,6 +26,9 @@ TALLY_BATCH_SIZE = 16
 TALLY_AHEAD = 4
 INDEX_FILE = 'index.csv'
 
+class Test:
+	x = 3
+
 
 def init_settings():
 	global FEATURE_NAMES
@@ -34,6 +37,7 @@ def init_settings():
 	global MODEL_FILE
 	MODEL_FILE = 'new'
 	print('MODEL_FILE:', MODEL_FILE)
+	print('Test.x:', Test.x)
 
 	if MODEL == 'custom':
 		FEATURE_NAMES = ['conv_layer6']
