@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 	string patternsFile = argv[6];
 	numm minSupportParam = atof(argv[7]);
  
-    cout << datasetName << " - " << datasetFile << " - " << numFeatures << " - " << numPatterns << " - " << patternsFile << " - " << minSupportParam "\n"; 
+    cout << datasetName << " - " << datasetFile << " - " << numFeatures << " - " << numPatterns << " - " << patternsFile << " - " << minSupportParam << "\n"; 
 
 	vector<tuple<string, string, vector<ind>, ind>> DataSets; //Name, Filepath, inputcolumns, outputcolumn
 	vector<ind> attributeIndices;

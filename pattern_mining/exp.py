@@ -77,6 +77,7 @@ def run_exp (concepts_file_path, output_base_path):
         print('Compilation return code:', res.returncode)
         print('Compilation output:', res.stdout)
         print('Compilation error:', res.stderr)
+        print(os.path.abspath(os.path.dirname(__file__)))
         res = subprocess.run(["./program", configs.dataset_name, concepts_file_path, str(num_concepts), str(num_patterns), 
             str(remove_inactivated_patterns_num), output_path, str(sup)], capture_output=True)
         print('Execution return code:', res.returncode)
