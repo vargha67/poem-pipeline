@@ -31,6 +31,8 @@ def init_settings():
 	global FEATURE_NAMES
 	global DATA_DIRECTORY
 	print('DATA_DIRECTORY:', DATA_DIRECTORY)
+	global MODEL_FILE
+	MODEL_FILE = 'new'
 	print('MODEL_FILE:', MODEL_FILE)
 
 	if MODEL == 'custom':
