@@ -21,7 +21,6 @@ def hook_feature(module, input, output):
 class FeatureOperator:
 
     def __init__(self):
-        print(settings.Test.x)
         print(settings.OUTPUT_FOLDER)
         if not os.path.exists(settings.OUTPUT_FOLDER):
             os.makedirs(os.path.join(settings.OUTPUT_FOLDER, 'image'))
