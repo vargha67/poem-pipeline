@@ -135,12 +135,48 @@ cart_params_grid = {
 
 # Pattern visualization settings:
 meta_cols = ['index', 'pred', 'support', 'confidence', 'accuracy', 'method', 'score']
-rule_methods = ['cart']
-if not old_process:
-    rule_methods.append('exp')
-    rule_methods.append('ids')
-
+rule_methods = ['cart'] if old_process else ['cart', 'exp', 'ids']
 ids_param = 0.01
 cart_param = 0.03
 exp_param = 0.03
 max_patterns = 10
+
+
+
+def update_configs(_current_setting_title, _old_process):
+    global current_setting_title
+    global title_parts
+    global model_name
+    global dataset_name
+    global dataset_pure_name
+    global current_setting
+    global load_model_from_disk
+    global num_classes
+    global base_num_classes
+    global target_layer
+    global excluded_concepts
+    global class_titles
+    global classes
+    global class_names
+    global old_process
+    global rule_methods
+
+    current_setting_title = _current_setting_title
+    title_parts = current_setting_title.split('_')
+    model_name = title_parts[0]
+    dataset_name = '_'.join(title_parts[1:])
+    dataset_pure_name = dataset_name.split('_')[0]
+
+    current_setting = model_dataset_settings[current_setting_title] 
+    load_model_from_disk = current_setting['load_model']
+    num_classes = current_setting['num_classes']
+    base_num_classes = current_setting['base_num_classes']
+    target_layer = model_settings[model_name]['target_layer']
+    excluded_concepts = current_setting['excluded_concepts'] if exclude_similar_concepts and ('excluded_concepts' in current_setting) else []
+
+    class_titles = extract_class_titles(dataset_name, binning_classes)
+    classes = list(class_titles.keys())
+    class_names = list(class_titles.values())
+
+    old_process = _old_process
+    rule_methods = ['cart'] if old_process else ['cart', 'exp', 'ids']

@@ -27,35 +27,47 @@ TALLY_AHEAD = 4
 INDEX_FILE = 'index.csv'
 
 
-def init_settings():
+def update_settings(model_name, dataset_name, num_classes, target_layer, activation_high_thresh, 
+					min_iou, result_path, model_file_path, dataset_path):
+	global MODEL
+	global DATASET
+	global NUM_CLASSES
 	global FEATURE_NAMES
-	global DATA_DIRECTORY
-	print('DATA_DIRECTORY:', DATA_DIRECTORY)
+	global QUANTILE
+	global SEG_THRESHOLD
+	global SCORE_THRESHOLD
+	global OUTPUT_FOLDER
 	global MODEL_FILE
-	MODEL_FILE = 'new'
-	print('MODEL_FILE:', MODEL_FILE)
+	global DATA_DIRECTORY
+	global IMG_SIZE
+	global WORKERS
+	global BATCH_SIZE
+	global TALLY_BATCH_SIZE
+	global TALLY_AHEAD
+	global INDEX_FILE
+
+	MODEL = model_name
+    DATASET = dataset_name
+    NUM_CLASSES = num_classes
+    FEATURE_NAMES = [target_layer]
+    QUANTILE = 1.0 - activation_high_thresh
+    SEG_THRESHOLD = min_iou
+    SCORE_THRESHOLD = min_iou
+    OUTPUT_FOLDER = result_path
+    MODEL_FILE = model_file_path
+    DATA_DIRECTORY = dataset_path
 
 	if MODEL == 'custom':
 		FEATURE_NAMES = ['conv_layer6']
 
 	if MODEL == 'alexnet':
-		global IMG_SIZE
 		DATA_DIRECTORY = 'dataset/broden1_227'
 		IMG_SIZE = 227
 		
 	if TEST_MODE:
-		global WORKERS
-		global BATCH_SIZE
-		global TALLY_BATCH_SIZE
-		global TALLY_AHEAD
-		global INDEX_FILE
-		global OUTPUT_FOLDER
-		
 		WORKERS = 1
 		BATCH_SIZE = 4
 		TALLY_BATCH_SIZE = 2
 		TALLY_AHEAD = 1
 		INDEX_FILE = 'index_sm.csv'
 		OUTPUT_FOLDER += "_test"
-
-		
