@@ -136,8 +136,8 @@ def extract_concepts (model, data_loader, channel_concept_map, channel_thresh_ma
     with torch.no_grad():
         for i, (images, labels, paths) in tqdm(enumerate(data_loader)):
             del batch_activations[:]
-            images_gpu = images.to(device)
-            labels_gpu = labels.to(device)
+            images_gpu = images.cuda()
+            labels_gpu = labels.cuda()
         
             output = model(images_gpu)
 
