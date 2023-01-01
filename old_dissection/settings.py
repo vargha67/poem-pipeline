@@ -28,14 +28,14 @@ INDEX_FILE = 'index.csv'
 
 
 def init_settings():
-	print('DATA_DIRECTORY:', DATA_DIRECTORY)
 	global FEATURE_NAMES
+	global DATA_DIRECTORY
+	print('DATA_DIRECTORY:', DATA_DIRECTORY)
 
 	if MODEL == 'custom':
 		FEATURE_NAMES = ['conv_layer6']
 
 	if MODEL == 'alexnet':
-		global DATA_DIRECTORY
 		global IMG_SIZE
 		DATA_DIRECTORY = 'dataset/broden1_227'
 		IMG_SIZE = 227
