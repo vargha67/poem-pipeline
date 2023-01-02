@@ -82,7 +82,7 @@ def run_exp (concepts_file_path, output_base_path):
         print('Arguments to the program: {} {} {} {} {} {} {}'.format(configs.dataset_name, concepts_file_path, 
             num_concepts, num_patterns, remove_inactivated_patterns_num, output_path, sup))
 
-        time.sleep(3)
+        time.sleep(10)
         res = subprocess.run(["./program", configs.dataset_name, concepts_file_path, str(num_concepts), str(num_patterns), 
             str(remove_inactivated_patterns_num), output_path, str(sup)], capture_output=True, universal_newlines=True)
         print('Execution return code:', res.returncode)
