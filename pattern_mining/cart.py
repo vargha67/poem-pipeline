@@ -228,7 +228,10 @@ def run_cart (concepts_file_path, output_base_path):
 
     base_labels = compute_base_predictions(X, class_rates)
 
-    params_grid = configs.cart_params_grid
+    params_grid = {
+        'criterion': ['entropy'], 
+        'min_samples_leaf': configs.min_support_params
+    }
     param_keys = list(params_grid.keys())
     param_values = list(params_grid.values())
     param_combinations = list(itertools.product(*param_values))

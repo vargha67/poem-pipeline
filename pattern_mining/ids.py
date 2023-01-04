@@ -630,7 +630,11 @@ def run_ids (concepts_file_path, output_base_path):
 
     base_labels = compute_base_predictions(X, class_rates)
 
-    params_grid = configs.ids_params_grid
+    params_grid = {
+        'lambda_array': [[0.5]*7],
+        'epsilon': [0.001],
+        'min_support': configs.min_support_params
+    }
     param_keys = list(params_grid.keys())
     param_values = list(params_grid.values())
     param_combinations = list(itertools.product(*param_values))

@@ -130,3 +130,92 @@ def find_images_having_concept (image_concepts, target_concept):
             matching_indices.append(i)
 
     return matching_indices
+
+
+
+def find_first_supported_pattern_for_image (img_concepts, patterns):
+    for i,pattern in patterns.iterrows():
+        is_match = True
+        for attr in list(pattern.index):
+            if (attr not in configs.meta_cols) and (pattern[attr] != -1):
+                if img_concepts[attr] != pattern[attr]:
+                    is_match = False
+                    break
+        
+        if is_match:
+            return i, pattern
+    
+    return -1, None
+
+
+
+def compute_pattern_class_covers (pattern, image_concepts, preds, classes):
+    indexes = find_images_supporting_pattern(image_concepts, pattern)
+    preds_list = preds.iloc[indexes].tolist()
+
+    sup = len(indexes)
+    class_covers = {c:0 for c in classes}
+    for i,y in enumerate(preds_list):
+        class_covers[y] += 1
+    
+    return {k:(v/sup) for k,v in class_covers.items()}
+
+
+
+def compute_patterns_average_measures (patterns):
+    cnt = len(patterns.index)
+    avg_size = 0
+    avg_sup = 0
+    avg_conf = 0
+    avg_score = 0
+
+    for i,pattern in patterns.iterrows():
+        avg_sup += pattern['support']
+        avg_conf += pattern['confidence']
+        avg_score += pattern['score']
+
+        for attr in list(pattern.index): 
+            if (attr not in configs.meta_cols) and (pattern[attr] != -1):
+                avg_size += 1
+
+    avg_size = avg_size / cnt
+    avg_sup = avg_sup / cnt
+    avg_conf = avg_conf / cnt
+    avg_score = avg_score / cnt
+    return avg_size, avg_sup, avg_conf, avg_score
+
+
+
+def compute_patterns_info_gain (patterns, image_concepts, preds):
+    n_patterns = len(patterns.index)
+    n_rows = len(preds.index)
+    class_counts = preds.value_counts().to_dict()
+    class_rates = {k:(v/n_rows) for k,v in class_counts.items()}
+    classes = list(class_rates.keys())
+    preds_list = preds.to_list()
+
+    base_labels = compute_base_predictions(image_concepts, class_rates)
+
+    patterns_class_covers = []
+    for i,pattern in patterns.iterrows():
+        class_covers = compute_pattern_class_covers(pattern, image_concepts, preds, classes)
+        patterns_class_covers.append(class_covers)
+
+    true_labels = []
+    conf_labels = []
+    for i,row in image_concepts.iterrows(): 
+        ind, pattern = find_first_supported_pattern_for_image(row, patterns)
+        class_covers = patterns_class_covers[ind] if ind != -1 else class_rates
+        
+        conf_y = [class_covers[k] if k in class_covers else 0 for k in classes]
+        conf_labels.append(conf_y)
+        
+        y = preds_list[i]
+        true_y = [1 if k==y else 0 for k in classes]
+        true_labels.append(true_y)
+        
+    base_KL = KL_divergence(true_labels, base_labels)
+    final_KL = KL_divergence(true_labels, conf_labels)
+    info_gain = base_KL - final_KL
+    avg_info_gain = info_gain / n_patterns
+    return info_gain, avg_info_gain

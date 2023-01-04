@@ -1,6 +1,6 @@
 import configs
 from pattern_mining import pattern_utils
-import math, os
+import math, os, json
 import pandas as pd
 import matplotlib.pyplot as plt
 import cv2
@@ -365,3 +365,89 @@ def display_patterns (all_patterns, concept_cols):
     all_patterns_df = all_patterns_df.rename_axis(None)
 
     display(all_patterns_df)
+
+
+
+def evaluate_all_patterns (identification_result_path, concepts_file_path, patterns_base_path, evaluation_result_file_path):
+    eval_results = {}
+    if os.path.exists(evaluation_result_file_path):
+        with open(evaluation_result_file_path, 'r') as f:
+            eval_results = json.load(f)
+
+    concepts = None
+    if configs.old_process:
+        tally_path = os.path.join(identification_result_path, 'tally.csv')
+        tally_data = pd.read_csv(tally_path)
+        tally_data = tally_data[tally_data['score'] > configs.min_iou]
+
+        concepts_list = tally_data['label'].tolist()
+        concepts = list(set(concepts_list))
+        concepts.sort()
+    else:
+        tally_path = os.path.join(identification_result_path, 'report.json')
+        tally_data = {}
+        with open(tally_path, 'r') as f:
+            tally_data = json.load(f) 
+
+        concepts_set = set()
+        for ch_item in tally_data['units']:
+            if ch_item['iou'] > configs.min_iou:
+                concepts_set.add(ch_item['label'])
+
+        concepts = list(concepts_set)
+        concepts.sort()
+
+    eval_results['concepts'] = concepts
+    eval_results['num_concepts'] = len(concepts)
+
+    image_concepts, preds, labels = pattern_utils.load_concepts_data(concepts_file_path, 'pred', 'label', ['id', 'file', 'path'])
+    filtered_concepts = list(image_concepts.columns)
+    eval_results['filtered_concepts'] = filtered_concepts
+    eval_results['num_filtered_concepts'] = len(filtered_concepts)
+
+    pattern_measures = []
+    total_avg_size = 0
+    total_avg_sup = 0
+    total_avg_conf = 0
+    total_avg_score = 0
+    total_info_gain = 0
+    total_avg_info_gain = 0
+    cnt = len(configs.min_support_params)
+
+    for sup in configs.min_support_params:
+        eval_item = {}
+        exp_patterns_file_path = os.path.join(patterns_base_path, 'exp_patterns_' + str(sup) + '.csv')
+        ids_patterns_file_path = os.path.join(patterns_base_path, 'ids_patterns_' + str(sup) + '.csv')
+        cart_patterns_file_path = os.path.join(patterns_base_path, 'cart_patterns_' + str(sup) + '.csv')
+        patterns, _image_concepts, concept_cols = \
+            load_patterns(concepts_file_path, exp_patterns_file_path, ids_patterns_file_path, cart_patterns_file_path)
+
+        avg_size, avg_sup, avg_conf, avg_score = pattern_utils.compute_patterns_average_measures(patterns)
+        eval_item['avg_size'] = round(avg_size, 2)
+        eval_item['avg_sup'] = round(avg_sup, 2)
+        eval_item['avg_conf'] = round(avg_conf, 2)
+        eval_item['avg_score'] = round(avg_score, 2)
+        total_avg_size += avg_size
+        total_avg_sup += avg_sup
+        total_avg_conf += avg_conf
+        total_avg_score += avg_score
+
+        info_gain, avg_info_gain = pattern_utils.compute_patterns_info_gain(patterns, image_concepts, preds)
+        eval_item['info_gain'] = round(info_gain, 2)
+        eval_item['avg_info_gain'] = round(avg_info_gain, 2)
+        total_info_gain += info_gain
+        total_avg_info_gain += avg_info_gain
+
+        pattern_measures.append(eval_item)
+
+    eval_results['total_avg_size'] = round(total_avg_size / cnt, 2)
+    eval_results['total_avg_sup'] = round(total_avg_sup / cnt, 2)
+    eval_results['total_avg_conf'] = round(total_avg_conf / cnt, 2)
+    eval_results['total_avg_score'] = round(total_avg_score / cnt, 2)
+    eval_results['total_info_gain'] = round(total_info_gain / cnt, 2)
+    eval_results['total_avg_info_gain'] = round(total_avg_info_gain / cnt, 2)
+    eval_results['pattern_measures'] = pattern_measures
+
+    with open(evaluation_result_file_path, 'w') as f:
+        json.dump(eval_results, f, indent=4)
+

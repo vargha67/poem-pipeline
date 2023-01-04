@@ -65,7 +65,6 @@ def run_exp (concepts_file_path, output_base_path):
     concept_cols = list(set(image_concepts.columns) - set(concepts_meta_cols))
     num_concepts = len(concept_cols)
     num_patterns = 30
-    min_support_params = configs.exp_params_grid['min_support']
     remove_inactivated_patterns_num = 1 if configs.remove_inactivated_patterns else 0
     output_path_list = []
 
@@ -77,7 +76,7 @@ def run_exp (concepts_file_path, output_base_path):
     print('Compilation output:', res.stdout)
     print('Compilation error:', res.stderr)
 
-    for sup in min_support_params:
+    for sup in configs.min_support_params:
         output_path = os.path.join(output_base_path, 'exp_patterns_' + str(sup) + '.csv')
         print('Arguments to the program: {} {} {} {} {} {} {}'.format(configs.dataset_name, concepts_file_path, 
             num_concepts, num_patterns, remove_inactivated_patterns_num, output_path, sup))
