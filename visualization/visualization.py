@@ -415,7 +415,9 @@ def evaluate_all_patterns (identification_result_path, concepts_file_path, patte
     cnt = len(configs.min_support_params)
 
     for sup in configs.min_support_params:
-        eval_item = {}
+        eval_item = {
+            'min_support': sup
+        }
         exp_patterns_file_path = os.path.join(patterns_base_path, 'exp_patterns_' + str(sup) + '.csv')
         ids_patterns_file_path = os.path.join(patterns_base_path, 'ids_patterns_' + str(sup) + '.csv')
         cart_patterns_file_path = os.path.join(patterns_base_path, 'cart_patterns_' + str(sup) + '.csv')
