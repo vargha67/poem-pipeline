@@ -51,7 +51,7 @@ target_layer = model_settings[model_name]['target_layer']
 pretrain_mode = 'feature_extraction'   # full_fine_tuning, partial_fine_tuning, feature_extraction
 target_classes = []
 train_ratio = 0.7
-train_batch_size = 64   # previously batch_size
+train_batch_size = 32   # previously batch_size
 epochs = 100
 stop_patience = 10
 cnn_dropout = 0.0
@@ -73,7 +73,7 @@ exclude_similar_concepts = True   # It is better to exclude a concept which is v
 excluded_concepts = current_setting['excluded_concepts'] if exclude_similar_concepts and ('excluded_concepts' in current_setting) else []
 
 # Concept attribution settings:
-batch_size = 32
+batch_size = 16
 gradient_high_thresh = 0.95   # previously activation_high_thresh
 min_thresh_pixels_old = 1
 min_thresh_pixels = 10
