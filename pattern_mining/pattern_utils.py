@@ -60,6 +60,77 @@ def load_concepts_data(file_path, class_column, label_column, extra_columns=[], 
 
 
 
+def load_patterns (concepts_file_path, exp_patterns_file_path, ids_patterns_file_path, cart_patterns_file_path, rule_methods=configs.rule_methods):
+    all_patterns_list = []
+	
+    if "exp" in rule_methods: 
+        exp_patterns = pd.read_csv(exp_patterns_file_path)
+        exp_patterns['method'] = 'Exp'
+        all_patterns_list.append(exp_patterns)
+        
+    if "ids" in rule_methods:
+        ids_patterns = pd.read_csv(ids_patterns_file_path)
+        ids_patterns['method'] = 'IDS'
+        all_patterns_list.append(ids_patterns)
+        
+    if "cart" in rule_methods:
+        cart_patterns = pd.read_csv(cart_patterns_file_path)
+        cart_patterns['method'] = 'CART'
+        all_patterns_list.append(cart_patterns)
+
+    all_patterns = pd.concat(all_patterns_list, ignore_index=True)
+    patterns_to_remove = []
+    exp_patterns_count = 0
+    
+    for i,pattern in all_patterns.iterrows():
+        if configs.remove_inactivated_patterns:
+            # Removing patterns with "no" features, because they're not very accurate and useful: 
+            to_remove = False
+            for attr in list(pattern.index): 
+                pattern_value = pattern[attr]
+                if (attr not in configs.meta_cols) and (pattern_value == configs.low_value):
+                    to_remove = True
+                    break
+                    
+            if to_remove:
+                print('Pattern {{{}}} to be removed because of having inactivated features!'.format(get_pattern_description(pattern)))
+                patterns_to_remove.append(i)
+                continue
+
+    if len(patterns_to_remove) > 0:
+        all_patterns.drop(patterns_to_remove, axis=0, inplace=True)
+
+    all_patterns['support'] = all_patterns['support'].round(2)
+    all_patterns['confidence'] = all_patterns['confidence'].round(2)
+    all_patterns['accuracy'] = all_patterns['accuracy'].round(2)
+
+    concept_cols = list(set(all_patterns.columns) - set(configs.meta_cols))
+    all_patterns['score'] = all_patterns.apply(lambda p: compute_pattern_score(p, concept_cols), axis=1)
+
+    group_cols = list(all_patterns.columns)
+    group_cols.remove('method')
+    all_patterns_grouped = all_patterns.groupby(group_cols, as_index=False)
+
+    all_patterns = all_patterns_grouped.agg({'method': lambda p: ', '.join(p.unique())})
+
+    all_patterns.sort_values(by=['score', 'confidence', 'support', 'accuracy', 'method'], ascending=False, inplace=True)
+    all_patterns.reset_index(drop=True, inplace=True)
+    all_patterns.insert(loc=0, column='index', value=(all_patterns.index + 1))
+    all_patterns['score'] = all_patterns['score'].round(2)
+
+    all_patterns = all_patterns.iloc[:configs.max_patterns]
+    all_patterns = all_patterns.loc[:, (all_patterns != -1).any(axis=0)]
+    concept_cols = list(set(all_patterns.columns) - set(configs.meta_cols))
+
+    image_concepts = pd.read_csv(concepts_file_path)
+    concepts_to_keep = set(concept_cols).union(set(['pred', 'label', 'id', 'file', 'path']))
+    concepts_to_remove = list(set(image_concepts.columns) - concepts_to_keep)
+    image_concepts.drop(concepts_to_remove, axis=1, inplace=True)
+
+    return all_patterns, image_concepts, concept_cols
+
+
+
 def find_images_supporting_pattern (image_concepts, pattern):
     df = image_concepts.copy()
     for attr in list(pattern.index): 
