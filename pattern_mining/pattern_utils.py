@@ -46,6 +46,20 @@ def compute_base_predictions(X, class_rates):
 
 
 
+def compute_pattern_score (row, concept_cols):
+    sup = row['support']
+    conf = row['confidence']
+    size = 0
+
+    for col in concept_cols:
+        if row[col] != -1:
+            size += 1
+
+    score = (sup * (conf ** 2)) / (size ** 2)
+    return score
+
+
+
 def load_concepts_data(file_path, class_column, label_column, extra_columns=[], to_str=False):
     df = pd.read_csv(file_path)
     Y = df[class_column]

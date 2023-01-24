@@ -230,20 +230,6 @@ def display_single_images (image_concepts, target_concept=None, target_channel=N
 
 
 
-def compute_pattern_score (row, concept_cols):
-    sup = row['support']
-    conf = row['confidence']
-    size = 0
-
-    for col in concept_cols:
-        if row[col] != -1:
-            size += 1
-
-    score = (sup * (conf ** 2)) / (size ** 2)
-    return score
-
-
-
 def get_feature_value_desc (val):
     if val == -1:
         return ''
