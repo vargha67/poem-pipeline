@@ -37,7 +37,7 @@ def evaluate_all_patterns (concepts_file_path, patterns_base_path, evaluation_ba
                 ids_patterns_file_path, cart_patterns_file_path, rule_methods)
             case_patterns[k] = patterns
 
-        min_num_patterns = min([len(v.index) for k,v in case_patterns.items()])
+        min_num_patterns = 5   # min([len(v.index) for k,v in case_patterns.items()])
 
         for k in cases:
             patterns = case_patterns[k].iloc[:min_num_patterns]
