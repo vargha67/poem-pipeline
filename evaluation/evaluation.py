@@ -30,11 +30,13 @@ def evaluate_all_patterns (concepts_file_path, patterns_base_path, evaluation_ba
         case_patterns = {}
         for k in cases:
             rule_methods = [k]
+            score_sorting = False
             if k == 'ensemble':
                 rule_methods = ['cart', 'exp', 'ids']
+                score_sorting = True
 
             patterns, _, _ = pattern_utils.load_patterns(concepts_file_path, exp_patterns_file_path, 
-                ids_patterns_file_path, cart_patterns_file_path, rule_methods)
+                ids_patterns_file_path, cart_patterns_file_path, rule_methods, score_sorting)
             case_patterns[k] = patterns
 
         min_num_patterns = 5   # min([len(v.index) for k,v in case_patterns.items()])

@@ -74,7 +74,8 @@ def load_concepts_data(file_path, class_column, label_column, extra_columns=[], 
 
 
 
-def load_patterns (concepts_file_path, exp_patterns_file_path, ids_patterns_file_path, cart_patterns_file_path, rule_methods=configs.rule_methods):
+def load_patterns (concepts_file_path, exp_patterns_file_path, ids_patterns_file_path, cart_patterns_file_path, 
+                    rule_methods=configs.rule_methods, score_sorting=True):
     all_patterns_list = []
 	
     if "exp" in rule_methods: 
@@ -127,7 +128,9 @@ def load_patterns (concepts_file_path, exp_patterns_file_path, ids_patterns_file
 
     all_patterns = all_patterns_grouped.agg({'method': lambda p: ', '.join(p.unique())})
 
-    all_patterns.sort_values(by=['score', 'confidence', 'support', 'accuracy', 'method'], ascending=False, inplace=True)
+    if score_sorting:
+        all_patterns.sort_values(by=['score', 'confidence', 'support', 'accuracy', 'method'], ascending=False, inplace=True)
+        
     all_patterns.reset_index(drop=True, inplace=True)
     all_patterns.insert(loc=0, column='index', value=(all_patterns.index + 1))
     all_patterns['score'] = all_patterns['score'].round(2)
