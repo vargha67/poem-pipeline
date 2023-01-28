@@ -2,6 +2,7 @@ import configs
 from pattern_mining import pattern_utils
 import os, json
 import pandas as pd
+from IPython.display import display
 
 
 
@@ -43,6 +44,8 @@ def evaluate_all_patterns (concepts_file_path, patterns_base_path, evaluation_ba
 
         for k in cases:
             patterns = case_patterns[k].iloc[:min_num_patterns]
+            print(f'{k} patterns with support {sup}:')
+            display(patterns)
 
             avg_size, avg_sup, avg_conf, avg_score = pattern_utils.compute_patterns_average_measures(patterns)
             info_gain, avg_info_gain = pattern_utils.compute_patterns_info_gain(patterns, image_concepts, preds)
