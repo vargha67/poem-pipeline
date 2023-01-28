@@ -320,7 +320,7 @@ def extract_concepts_from_image (act, upact, seg, path, channels_map, seg_concep
 
     if n_channels_attributed > 0:
         image_overlap_ratio = image_overlap_ratio / n_channels_attributed
-    return image_concepts, image_channels, image_concepts_counts, image_channels_counts, image_overlap_ratio
+    return image_concepts, image_channels, image_concepts_counts, image_channels_counts, image_overlap_ratio, n_channels_attributed
 
 
 
@@ -357,6 +357,7 @@ def extract_concepts (model, segmodel, upfn, renorm, data_loader, channels_map, 
     image_threshs_list = []
     acts_list = []
     num_images = 0
+    num_images_attributed = 0
     total_acc = 0
     total_overlap_ratio = 0
     
@@ -429,7 +430,7 @@ def extract_concepts (model, segmodel, upfn, renorm, data_loader, channels_map, 
                 if configs.binning_features:
                     image_threshs['low_thresh'] = torch.quantile(act, q=configs.gradient_low_thresh).item()
 
-            image_concepts, image_channels, image_concepts_counts, image_channels_counts, image_overlap_ratio = \
+            image_concepts, image_channels, image_concepts_counts, image_channels_counts, image_overlap_ratio, n_channels_attributed = \
                 extract_concepts_from_image(act, upact, seg, path, channels_map, seg_concept_index_map, channels, concepts, image_threshs)
 
             # if (i == 0) and (j == 0):
@@ -452,7 +453,10 @@ def extract_concepts (model, segmodel, upfn, renorm, data_loader, channels_map, 
             acts_list.append(act)
             image_channels_counts_list.append(image_channels_counts)
             image_threshs_list.append(image_threshs)
-            total_overlap_ratio += image_overlap_ratio
+
+            if n_channels_attributed > 0:
+                num_images_attributed += 1
+                total_overlap_ratio += image_overlap_ratio
 
             image_concepts_row = image_concepts
             image_concepts_row['pred'] = pred
@@ -481,7 +485,7 @@ def extract_concepts (model, segmodel, upfn, renorm, data_loader, channels_map, 
                 channels_counts[ch] += 1 if cnt > 0 else 0
 
     total_acc = total_acc / num_images
-    total_overlap_ratio = total_overlap_ratio / num_images
+    total_overlap_ratio = total_overlap_ratio / num_images_attributed
     print('\nExtracted concepts from {} images with accuracy {:.3f} and overlap ratio {:.2f}.' \
         .format(num_images, total_acc, total_overlap_ratio))
     print('\nConcept counts:', concepts_counts)
