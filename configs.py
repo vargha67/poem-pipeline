@@ -129,9 +129,12 @@ cart_param = 0.03
 exp_param = 0.03
 max_patterns = 10
 
+# Evaluation settings: 
+max_patterns_to_keep = [5 for sup in min_support_params]
 
 
-def update_configs(_current_setting_title, _old_process):
+
+def update_configs(_current_setting_title, _old_process, _max_patterns_to_keep):
     global current_setting_title
     global title_parts
     global model_name
@@ -148,6 +151,7 @@ def update_configs(_current_setting_title, _old_process):
     global class_names
     global old_process
     global rule_methods
+    global max_patterns_to_keep
 
     current_setting_title = _current_setting_title
     title_parts = current_setting_title.split('_')
@@ -168,3 +172,4 @@ def update_configs(_current_setting_title, _old_process):
 
     old_process = _old_process
     rule_methods = ['cart'] if old_process else ['cart', 'exp', 'ids']
+    max_patterns_to_keep = _max_patterns_to_keep
