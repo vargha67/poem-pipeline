@@ -122,15 +122,15 @@ def load_patterns (concepts_file_path, exp_patterns_file_path, ids_patterns_file
     concept_cols = list(set(all_patterns.columns) - set(configs.meta_cols))
     all_patterns['score'] = all_patterns.apply(lambda p: compute_pattern_score(p, concept_cols), axis=1)
 
-    group_cols = list(all_patterns.columns)
-    group_cols.remove('method')
-    all_patterns_grouped = all_patterns.groupby(group_cols, as_index=False)
-
-    all_patterns = all_patterns_grouped.agg({'method': lambda p: ', '.join(p.unique())})
+    if len(rule_methods) > 1:
+        group_cols = list(all_patterns.columns)
+        group_cols.remove('method')
+        all_patterns_grouped = all_patterns.groupby(group_cols, as_index=False)
+        all_patterns = all_patterns_grouped.agg({'method': lambda p: ', '.join(p.unique())})
 
     if score_sorting:
         all_patterns.sort_values(by=['score', 'confidence', 'support', 'accuracy', 'method'], ascending=False, inplace=True)
-        
+
     all_patterns.reset_index(drop=True, inplace=True)
     all_patterns.insert(loc=0, column='index', value=(all_patterns.index + 1))
     all_patterns['score'] = all_patterns['score'].round(2)
