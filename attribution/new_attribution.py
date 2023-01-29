@@ -486,8 +486,8 @@ def extract_concepts (model, segmodel, upfn, renorm, data_loader, channels_map, 
 
     total_acc = total_acc / num_images
     total_overlap_ratio = total_overlap_ratio / num_images_attributed
-    print('\nExtracted concepts from {} images with accuracy {:.3f} and overlap ratio {:.2f}.' \
-        .format(num_images, total_acc, total_overlap_ratio))
+    print('\nExtracted concepts from {} total and {} attributed images with accuracy {:.3f} and overlap ratio {:.2f}.' \
+        .format(num_images, num_images_attributed, total_acc, total_overlap_ratio))
     print('\nConcept counts:', concepts_counts)
     for c,counts in concepts_counts_by_class.items():
         print('\nConcept counts of class {}: {}'.format(c, counts))
@@ -547,14 +547,14 @@ def filter_extracted_concepts (concepts_df, channels_df, channels_map):
 
 def save_activation_images_of_image (iv, image_index, image_path, image_fname, acts, img_concepts_row, img_channels_row, 
                                      image_channels_counts, channels_map, concepts, output_dir, image_threshs=None):
-    acts = acts[None, :, :, :]   # as required by iv.masked_image
-    # if image_index == 1:
-    #     print('acts.shape in save_activation_images:', acts.shape)
-
     image_activated_channels = [k for k,v in image_channels_counts.items() if v > 0]   # Only keep those channels which have been either mid or high for the image
     if len(image_activated_channels) == 0:
         # print('Image {} with path {} has no activated channels!'.format(image_index, image_path))
         return 0
+
+    acts = acts[None, :, :, :]   # as required by iv.masked_image
+    # if image_index == 1:
+    #     print('acts.shape in save_activation_images:', acts.shape)
 
     image_concept_channels = {con:[] for con in concepts}
     for ch in image_activated_channels:
@@ -582,8 +582,7 @@ def save_activation_images_of_image (iv, image_index, image_path, image_fname, a
     ])
     image = transform(image)
 
-    images = []
-    filenames = []
+    num_act_images = 0
     for con,lst in image_concept_channels.items():
         if len(lst) == 0:
             continue
@@ -619,18 +618,16 @@ def save_activation_images_of_image (iv, image_index, image_path, image_fname, a
             new_fname = image_fname_raw + '_' + feature_value_title + str(ch) + '_' + con + '.jpg'
             new_path = os.path.join(output_dir, new_fname)
 
-            images.append(new_image)
-            filenames.append(new_path)
-
             new_image.save(new_path, optimize=True, quality=99)
+            num_act_images += 1
 
-    # print('Saved {} activation images for image {} with path {}'.format(len(images), image_index, image_path))
-    return len(images)
+    # print('Saved {} activation images for image {} with path {}'.format(num_act_images, image_index, image_path))
+    return num_act_images
 
 
 
 def save_image_concepts_dataset (concepts_df, channels_df, image_channels_counts_list, image_threshs_list, total_overlap_ratio, 
-                                 acts_list, upfn, dataset, channels_map, filtered_concepts, original_concepts, filtered_channels, 
+                                 acts_list, upfn, dataset, channels_map, filtered_concepts, filtered_channels, 
                                  concepts_output_path, channels_output_path, activation_images_path, concepts_evaluation_file_path):
     iv = imgviz.ImageVisualizer(size=(configs.image_size, configs.image_size), 
                                 image_size=(configs.image_size, configs.image_size), source=dataset)
@@ -656,7 +653,7 @@ def save_image_concepts_dataset (concepts_df, channels_df, image_channels_counts
         image_threshs = image_threshs_list[i]
 
         num_act_images = save_activation_images_of_image(iv, id, path, fname, upact, con_row, ch_row, filtered_image_channels_counts, 
-                                                        channels_map, filtered_concepts, activation_images_path, image_threshs)
+                                                         channels_map, filtered_concepts, activation_images_path, image_threshs)
         num_act_images_saved += num_act_images
 
         for con in filtered_concepts:
@@ -677,6 +674,9 @@ def save_image_concepts_dataset (concepts_df, channels_df, image_channels_counts
 
     concepts_df.to_csv(concepts_output_path, index=False)
     channels_df.to_csv(channels_output_path, index=False)
+
+    original_concepts = list(set([v['concept'] for k,v in channels_map.items() if v['is_valid'] == True]))
+    original_concepts.sort()
 
     eval_results = {
         'concepts': original_concepts,
@@ -722,10 +722,7 @@ def concept_attribution (dataset_path, model_file_path, result_path, concepts_fi
     if configs.filter_concepts:
         concepts_df, channels_df, concepts, channels = filter_extracted_concepts(concepts_df, channels_df, channels_map)
 
-    original_concepts = list(set([v['concept'] for k,v in channels_map.items() if v['is_valid'] == True]))
-    original_concepts.sort()
-
     save_image_concepts_dataset(concepts_df, channels_df, image_channels_counts_list, image_threshs_list, 
-        total_overlap_ratio, acts_list, upfn, dataset, channels_map, concepts, original_concepts, channels, 
-        concepts_file_path, channels_file_path, activation_images_path, concepts_evaluation_file_path)
+        total_overlap_ratio, acts_list, upfn, dataset, channels_map, concepts, channels, concepts_file_path, 
+        channels_file_path, activation_images_path, concepts_evaluation_file_path)
 
