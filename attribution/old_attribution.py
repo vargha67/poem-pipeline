@@ -54,7 +54,7 @@ def load_channels_data (tally_path, thresholds_path):
     categories_list = tally_data['category'].tolist()
 
     channels_map = {}
-    for ch, con, cat in zip(channels_list, concepts_list, categories_list)
+    for ch, con, cat in zip(channels_list, concepts_list, categories_list):
         channels_map[ch] = {
             'concept': con,
             'category': cat
