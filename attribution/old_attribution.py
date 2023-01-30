@@ -106,15 +106,30 @@ def extract_concepts_from_image (act, upact, seg, channels_map, seg_concept_inde
             image_concepts[channel_concept] = 1
             image_concepts_counts[channel_concept] += 1
             image_channels_counts[ch] = num_high_thresh
-            n_channels_attributed += 1
 
             if configs.check_seg_overlap:
                 seg_concept_index = seg_concept_index_map[channel_concept] if channel_concept in seg_concept_index_map else None
+                if seg_concept_index is None:
+                    # Handling common cases where the channel concept is not found in the segmentation concepts index, 
+                    # but a similar concept may exist:
+                    alt_concept = None
+                    if channel_concept.endswith('-c'):
+                        alt_concept = channel_concept[:-2]
+                    else:
+                        alt_concepts_map = {
+                            'windowpane': 'window'
+                        }
+                        alt_concept = alt_concepts_map[channel_concept] if channel_concept in alt_concepts_map else None
+
+                    if alt_concept != None: 
+                        seg_concept_index = seg_concept_index_map[alt_concept] if alt_concept in seg_concept_index_map else None
+
                 cat_index = configs.category_index_map[channel_category] if channel_category in configs.category_index_map else None
                 if (seg_concept_index is None) or (cat_index is None):
                     print('Error: Missing segmentation concept index ({}) or category index ({}) for channel {} mapped to concept {} from category {}'
                         .format(seg_concept_index, cat_index, ch, channel_concept, channel_category))
                 else:
+                    n_channels_attributed += 1
                     target_seg = seg[cat_index]
                     target_seg_concept_mask = (target_seg == seg_concept_index)
                     num_concept_seg = np.sum(target_seg_concept_mask.numpy())
@@ -137,7 +152,7 @@ def extract_concepts_from_image (act, upact, seg, channels_map, seg_concept_inde
 
     if n_channels_attributed > 0:
         image_overlap_ratio = image_overlap_ratio / n_channels_attributed
-        print('image_overlap_ratio:', image_overlap_ratio)
+        #print('image_overlap_ratio:', image_overlap_ratio)
     return image_concepts, image_channels, image_concepts_counts, image_channels_counts, image_overlap_ratio, n_channels_attributed
 
 
