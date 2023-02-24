@@ -306,9 +306,9 @@ def plot_results (train_losses, train_accs, val_losses, val_accs):
 
 
 
-def pretrain_model (dataset_path, valid_dataset_path, base_model_file_path, model_file_path):
-    train_loader, valid_loader = prepare_data(dataset_path)
-    save_data_subset(valid_loader.dataset, valid_dataset_path)
+def pretrain_model (full_dataset_path, dataset_path, base_model_file_path, model_file_path):
+    train_loader, valid_loader = prepare_data(full_dataset_path)
+    save_data_subset(valid_loader.dataset, dataset_path)
 
     model = pretrained_model(base_model_file_path)
     model = model.cuda()

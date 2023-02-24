@@ -1,7 +1,7 @@
 import configs
 from model_utils import vgg16_model
 from data_utils import CustomImageFolder
-import torch, os, json
+import torch, os, json, shutil
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -629,6 +629,10 @@ def save_activation_images_of_image (iv, image_index, image_path, image_fname, a
 def save_image_concepts_dataset (concepts_df, channels_df, image_channels_counts_list, image_threshs_list, total_overlap_ratio, 
                                  acts_list, upfn, dataset, channels_map, filtered_concepts, filtered_channels, 
                                  concepts_output_path, channels_output_path, activation_images_path, concepts_evaluation_file_path):
+    if os.path.exists(activation_images_path):
+        shutil.rmtree(activation_images_path)
+    os.makedirs(activation_images_path)
+
     iv = imgviz.ImageVisualizer(size=(configs.image_size, configs.image_size), 
                                 image_size=(configs.image_size, configs.image_size), source=dataset)
 
@@ -691,15 +695,15 @@ def save_image_concepts_dataset (concepts_df, channels_df, image_channels_counts
 
 
 
-def concept_attribution (dataset_path, model_file_path, result_path, concepts_file_path, 
+def concept_attribution (dataset_path, model_file_path, segmenter_model_path, identification_result_path, concepts_file_path, 
                          channels_file_path, activation_images_path, concepts_evaluation_file_path):
     model = load_model(model_file_path)
     model.retain_layer(configs.target_layer)
 
     dataset, data_loader = load_data(dataset_path)
 
-    tally_path = os.path.join(result_path, 'report.json')
-    thresholds_path = os.path.join(result_path, 'channel_quantiles.npy')
+    tally_path = os.path.join(identification_result_path, 'report.json')
+    thresholds_path = os.path.join(identification_result_path, 'channel_quantiles.npy')
     channels_map, channels, concepts = load_channels_data(tally_path)
 
     args = EasyDict(model=configs.model_name, dataset=configs.dataset_name, seg=configs.seg_model_name, 
@@ -710,7 +714,7 @@ def concept_attribution (dataset_path, model_file_path, result_path, concepts_fi
     segmodel = None
     seg_concept_index_map = {}
     if configs.check_seg_overlap:
-        segmodel, seglabels, segcatlabels = experiment.setting.load_segmenter(configs.seg_model_name)
+        segmodel, seglabels, segcatlabels = experiment.setting.load_segmenter(configs.seg_model_name, segmenter_model_path)
         for i,lbl in enumerate(seglabels):
             seg_concept_index_map[lbl] = i
 

@@ -1,6 +1,6 @@
 import configs
 from pattern_mining.pattern_utils import KL_divergence, compute_base_predictions, load_concepts_data
-import os, itertools, copy, datetime
+import os, itertools, copy, datetime, shutil
 import pandas as pd
 from matplotlib import pyplot as plt
 from sklearn import tree
@@ -214,7 +214,11 @@ def train_evaluate_tree(X, Y, Y_true, classes, base_labels, model_params, featur
 
 
 
-def run_cart (concepts_file_path, output_base_path):
+def run_cart (concepts_file_path, cart_patterns_path):
+    if os.path.exists(cart_patterns_path):
+        shutil.rmtree(cart_patterns_path)
+    os.makedirs(cart_patterns_path)
+
     t_start = datetime.datetime.now()
     X, Y, Y_true = load_concepts_data(concepts_file_path, 'pred', 'label', ['id', 'file', 'path'])   # Y is CNN model predictions, while Y_true is ground truth labels
 
@@ -245,7 +249,7 @@ def run_cart (concepts_file_path, output_base_path):
         model, leaves_stats, n_leaves, info_gain, tree_acc = \
             train_evaluate_tree(X, Y, Y_true, classes, base_labels, params, feature_names)
         results.append({'params': params, 'leaves': n_leaves, 'info_gain': info_gain})
-        output_path = os.path.join(output_base_path, 'cart_patterns_' + str(params['min_samples_leaf']) + '.csv')
+        output_path = os.path.join(cart_patterns_path, str(params['min_samples_leaf']) + '.csv')
         extract_save_rules(model, feature_names, leaves_stats, n_rows, output_path)
         output_path_list.append(output_path)
         

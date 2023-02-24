@@ -2,6 +2,7 @@ import configs
 from pattern_mining import pattern_utils
 import math, os, json
 import pandas as pd
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import cv2
 from IPython.display import display
@@ -281,3 +282,29 @@ def display_patterns (all_patterns, concept_cols):
 
     display(all_patterns_df)
 
+
+
+def visualize_patterns (concepts_file_path, cart_patterns_path, ids_patterns_path, exp_patterns_path, 
+                        activation_images_path, min_support=0.01, pattern_index=1, target_concept=None):
+
+    mpl.rcParams['lines.linewidth'] = 0.25
+    mpl.rcParams['axes.spines.top'] = False
+    mpl.rcParams['axes.spines.right'] = False
+    mpl.rcParams['axes.linewidth'] = 0.25
+    pd.options.display.max_columns = None
+
+    cart_patterns_file_path = os.path.join(cart_patterns_path, str(min_support) + '.csv')
+    ids_patterns_file_path = os.path.join(ids_patterns_path, str(min_support) + '.csv')
+    exp_patterns_file_path = os.path.join(exp_patterns_path, str(min_support) + '.csv')
+
+    all_patterns, image_concepts, concept_cols = \
+        pattern_utils.load_patterns(concepts_file_path, exp_patterns_file_path, ids_patterns_file_path, cart_patterns_file_path)
+
+    display_patterns(all_patterns, concept_cols)
+
+    pattern = all_patterns.loc[all_patterns['index'] == pattern_index].iloc[0]
+    display_images_matching_pattern(pattern, image_concepts, activation_images_path, target_concept)
+
+    display_images_supporting_pattern_not_matching(pattern, image_concepts, activation_images_path, target_concept)
+
+    display_images_matching_pattern_wrong_predicted(pattern, image_concepts, activation_images_path, target_concept)

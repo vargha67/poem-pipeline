@@ -1,12 +1,16 @@
 import configs
 from pattern_mining import pattern_utils
-import os, json
+import os, json, shutil
 import pandas as pd
 from IPython.display import display
 
 
 
-def evaluate_all_patterns (concepts_file_path, patterns_base_path, evaluation_base_path):
+def evaluate_all_patterns (concepts_file_path, cart_patterns_path, ids_patterns_path, exp_patterns_path, evaluation_result_path):
+    if os.path.exists(evaluation_result_path):
+        shutil.rmtree(evaluation_result_path)
+    os.makedirs(evaluation_result_path)
+
     cases = ['cart', 'exp', 'ids', 'ensemble'] if not configs.old_process else ['cart']
     eval_results = {}
 
@@ -24,9 +28,9 @@ def evaluate_all_patterns (concepts_file_path, patterns_base_path, evaluation_ba
     image_concepts, preds, labels = pattern_utils.load_concepts_data(concepts_file_path, 'pred', 'label', ['id', 'file', 'path'])
 
     for i, sup in enumerate(configs.min_support_params):
-        exp_patterns_file_path = os.path.join(patterns_base_path, 'exp_patterns_' + str(sup) + '.csv')
-        ids_patterns_file_path = os.path.join(patterns_base_path, 'ids_patterns_' + str(sup) + '.csv')
-        cart_patterns_file_path = os.path.join(patterns_base_path, 'cart_patterns_' + str(sup) + '.csv')
+        exp_patterns_file_path = os.path.join(exp_patterns_path, str(sup) + '.csv')
+        ids_patterns_file_path = os.path.join(ids_patterns_path, str(sup) + '.csv')
+        cart_patterns_file_path = os.path.join(cart_patterns_path, str(sup) + '.csv')
 
         case_patterns = {}
         for k in cases:
@@ -85,7 +89,7 @@ def evaluate_all_patterns (concepts_file_path, patterns_base_path, evaluation_ba
         eval_results[k]['total_info_gain'] = round(eval_results[k]['total_info_gain'] / cnt, 2)
         eval_results[k]['total_avg_info_gain'] = round(eval_results[k]['total_avg_info_gain'] / cnt, 2)
 
-        evaluation_file_path = os.path.join(evaluation_base_path, 'evaluation_' + k + '.json')
+        evaluation_file_path = os.path.join(evaluation_result_path, 'evaluation_' + k + '.json')
         with open(evaluation_file_path, 'w') as f:
             json.dump(eval_results[k], f, indent=4)
         evaluations_path_list.append(evaluation_file_path)

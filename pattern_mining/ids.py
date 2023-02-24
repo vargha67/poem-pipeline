@@ -2,7 +2,7 @@ import configs
 from pattern_mining.pattern_utils import KL_divergence, accuracy, compute_base_predictions, load_concepts_data
 import numpy as np
 import pandas as pd
-import math, os, datetime, random, itertools
+import math, os, datetime, random, itertools, shutil
 from apyori import apriori
 
 
@@ -618,7 +618,11 @@ def save_rules(solution_rules, feature_names, n_rows, output_path):
 
 
 
-def run_ids (concepts_file_path, output_base_path):
+def run_ids (concepts_file_path, ids_patterns_path):
+    if os.path.exists(ids_patterns_path):
+        shutil.rmtree(ids_patterns_path)
+    os.makedirs(ids_patterns_path)
+
     t_start = datetime.datetime.now()
     X, Y, Y_true = load_concepts_data(concepts_file_path, 'pred', 'label', ['id', 'file', 'path'], to_str=True)
 
@@ -646,7 +650,7 @@ def run_ids (concepts_file_path, output_base_path):
         params = {k:v for k,v in zip(param_keys, comb)}
         solution_rules, info_gain, ids_acc = run_process(X, Y, Y_true, class_rates, base_labels, params, n_rows)
         results.append({'params': params, 'rule_set_size': len(solution_rules), 'info_gain': info_gain})
-        output_path = os.path.join(output_base_path, 'ids_patterns_' + str(params['min_support']) + '.csv')
+        output_path = os.path.join(ids_patterns_path, str(params['min_support']) + '.csv')
         save_rules(solution_rules, feature_names, n_rows, output_path)
         output_path_list.append(output_path)
 

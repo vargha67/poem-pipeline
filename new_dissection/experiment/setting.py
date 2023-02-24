@@ -67,7 +67,7 @@ def load_dataset(domain, split=None, full=False, crop_size=None, download=True):
                 shuffle=True,
                 transform=places_transform)
 
-def load_segmenter(segmenter_name='netpqc'):
+def load_segmenter(segmenter_name='netpqc', segmenter_model_path='datasets/segmodel'):
     '''Loads the segementer.'''
     all_parts = ('p' in segmenter_name)
     quad_seg = ('q' in segmenter_name)
@@ -79,11 +79,11 @@ def load_segmenter(segmenter_name='netpqc'):
             all_parts=all_parts,
             segdiv=('quad' if quad_seg else None)))
     if textures:
-        segmenter.ensure_segmenter_downloaded('datasets/segmodel', 'texture')
+        segmenter.ensure_segmenter_downloaded(segmenter_model_path, 'texture')
         segmodels.append(segmenter.SemanticSegmenter(
             segvocab="texture", segarch=("resnet18dilated", "ppm_deepsup")))
     if colors:
-        segmenter.ensure_segmenter_downloaded('datasets/segmodel', 'color')
+        segmenter.ensure_segmenter_downloaded(segmenter_model_path, 'color')
         segmodels.append(segmenter.SemanticSegmenter(
             segvocab="color", segarch=("resnet18dilated", "ppm_deepsup")))
     if len(segmodels) == 1:

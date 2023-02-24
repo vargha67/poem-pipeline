@@ -1,12 +1,4 @@
-import sys
 from utils import extract_class_titles
-
-
-# try:
-#     sys.path.append('./new_dissection')
-#     sys.path.append('./old_dissection')
-# except Exception as ex:
-#     print('Exception in adding to sys path:', ex)
 
 
 model_settings = {
@@ -33,6 +25,14 @@ model_dataset_settings = {
     "vgg16_imagenet_minivan_pickup": {'load_model': False, 'num_classes': 2, 'base_num_classes': 1000, 'excluded_concepts': ['pickup', 'van']}
 }
 
+
+# Run configuration: 
+run_pretraining = True
+run_identification = True
+run_attribution = True
+run_pattern_mining = True
+run_evaluation = True
+run_visualization = True
 
 # Model and dataset settings: 
 current_setting_title = "resnet18_places_bedroom_kitchen_livingroom"
@@ -117,13 +117,13 @@ class_titles = extract_class_titles(dataset_name, binning_classes)
 classes = list(class_titles.keys())
 class_names = list(class_titles.values())
 
+rule_methods = ['cart'] if old_process else ['cart', 'exp', 'ids']
 min_support_params = [0.01, 0.03, 0.05, 0.1, 0.15, 0.2]
 ids_smooth_search = False
 ids_timeout = 600000
 
 # Pattern visualization settings:
 meta_cols = ['index', 'pred', 'support', 'confidence', 'accuracy', 'method', 'score']
-rule_methods = ['cart'] if old_process else ['cart', 'exp', 'ids']
 ids_param = 0.01
 cart_param = 0.03
 exp_param = 0.03
@@ -134,7 +134,15 @@ max_patterns_to_keep = [5 for sup in min_support_params]
 
 
 
-def update_configs(_current_setting_title, _old_process, _max_patterns_to_keep):
+def update_configs(_run_pretraining, _run_identification, _run_attribution, _run_pattern_mining, _run_evaluation, 
+                   _run_visualization, _current_setting_title, _old_process, _rule_methods=None, _max_patterns_to_keep=None):
+
+    global run_pretraining
+    global run_identification
+    global run_attribution
+    global run_pattern_mining
+    global run_evaluation
+    global run_visualization
     global current_setting_title
     global title_parts
     global model_name
@@ -152,6 +160,13 @@ def update_configs(_current_setting_title, _old_process, _max_patterns_to_keep):
     global old_process
     global rule_methods
     global max_patterns_to_keep
+
+    run_pretraining = _run_pretraining
+    run_identification = _run_identification
+    run_attribution = _run_attribution
+    run_pattern_mining = _run_pattern_mining
+    run_evaluation = _run_evaluation
+    run_visualization = _run_visualization
 
     current_setting_title = _current_setting_title
     title_parts = current_setting_title.split('_')
@@ -172,4 +187,7 @@ def update_configs(_current_setting_title, _old_process, _max_patterns_to_keep):
 
     old_process = _old_process
     rule_methods = ['cart'] if old_process else ['cart', 'exp', 'ids']
-    max_patterns_to_keep = _max_patterns_to_keep
+    if _rule_methods:
+        rule_methods = _rule_methods
+    if _max_patterns_to_keep:
+        max_patterns_to_keep = _max_patterns_to_keep

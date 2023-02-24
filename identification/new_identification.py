@@ -1,6 +1,6 @@
 import configs
 from model_utils import vgg16_model
-import torch, os, json, numpy
+import torch, os, json, numpy, shutil
 import IPython
 from IPython.display import display
 from torchvision import transforms, models
@@ -280,7 +280,11 @@ def save_final_data (unit_label_high, label_list, level_high, level_low, result_
     
 
 
-def concept_identification (dataset_path, model_file_path, result_path):
+def concept_identification (dataset_path, model_file_path, segmenter_model_path, identification_result_path):
+    if os.path.exists(identification_result_path):
+        shutil.rmtree(identification_result_path)
+    os.makedirs(identification_result_path)
+
     model = load_model(model_file_path)
     model.retain_layer(configs.target_layer)
 
@@ -295,7 +299,7 @@ def concept_identification (dataset_path, model_file_path, result_path):
                     layer=configs.target_layer, quantile=configs.activation_high_thresh)
     upfn = experiment.make_upfn(args, dataset, model, configs.target_layer)
     renorm = renormalize.renormalizer(dataset, target='zc')
-    segmodel, seglabels, segcatlabels = experiment.setting.load_segmenter(configs.seg_model_name)
+    segmodel, seglabels, segcatlabels = experiment.setting.load_segmenter(configs.seg_model_name, segmenter_model_path)
 
     # print('Segmentation labels:')
     # for i,lbl in enumerate(seglabels):
@@ -309,20 +313,20 @@ def concept_identification (dataset_path, model_file_path, result_path):
 
     # show_sample_heatmaps(model, dataset, batch)
 
-    rq = compute_tally_quantile(model, dataset, upfn, sample_size, result_path)
+    rq = compute_tally_quantile(model, dataset, upfn, sample_size, identification_result_path)
 
-    topk = compute_tally_topk(model, dataset, sample_size, result_path)
+    topk = compute_tally_topk(model, dataset, sample_size, identification_result_path)
 
     # show_sample_image_activation(model, dataset, rq, topk, classlabels, sample_unit_number=2, sample_image_index=0)
 
-    unit_images = save_top_channel_images(model, dataset, rq, topk, result_path)
+    unit_images = save_top_channel_images(model, dataset, rq, topk, identification_result_path)
 
     # sample_unit_numbers = [10, 20, 30, 40]
     # show_sample_channel_images(unit_images, sample_unit_numbers)
 
     unit_label_high, label_list, level_high, level_low = compute_top_channel_concepts(model, segmodel, upfn, 
-        dataset, rq, seglabels, segcatlabels, sample_size, renorm, result_path)
+        dataset, rq, seglabels, segcatlabels, sample_size, renorm, identification_result_path)
 
     # show_sample_channel_images(unit_images, sample_unit_numbers, unit_label_high)
 
-    save_final_data(unit_label_high, label_list, level_high, level_low, result_path)
+    save_final_data(unit_label_high, label_list, level_high, level_low, identification_result_path)

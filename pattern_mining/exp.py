@@ -2,7 +2,7 @@ import configs
 from pattern_mining.pattern_utils import find_images_supporting_pattern, find_images_matching_pattern
 import subprocess
 import pandas as pd
-import os, time
+import os, time, shutil
 
 
 
@@ -59,7 +59,11 @@ def compute_pattern_accuracies (image_concepts, patterns_file):
 
 
 
-def run_exp (concepts_file_path, output_base_path):
+def run_exp (concepts_file_path, exp_patterns_path):
+    if os.path.exists(exp_patterns_path):
+        shutil.rmtree(exp_patterns_path)
+    os.makedirs(exp_patterns_path)
+
     image_concepts = pd.read_csv(concepts_file_path)
     concepts_meta_cols = ['pred', 'label', 'id', 'file', 'path']
     concept_cols = list(set(image_concepts.columns) - set(concepts_meta_cols))
@@ -77,7 +81,7 @@ def run_exp (concepts_file_path, output_base_path):
     print('Compilation error:', res.stderr)
 
     for sup in configs.min_support_params:
-        output_path = os.path.join(output_base_path, 'exp_patterns_' + str(sup) + '.csv')
+        output_path = os.path.join(exp_patterns_path, str(sup) + '.csv')
         print('Arguments to the program: {} {} {} {} {} {} {}'.format(configs.dataset_name, concepts_file_path, 
             num_concepts, num_patterns, remove_inactivated_patterns_num, output_path, sup))
 
