@@ -105,12 +105,12 @@ def prepare_data (dataset_path, images_path=None, labels_path=None):
 def save_data_subset (data_subset, target_dataset_dir):
     images_info = data_subset.samples
     class_to_idx = data_subset.class_to_idx
-    print('class_to_idx:', class_to_idx)
+    #print('class_to_idx:', class_to_idx)
     class_names = list(class_to_idx.keys())
     idx_to_class_dir = {}
 
     if not os.path.exists(target_dataset_dir):
-        print('Making target dataset dir:', target_dataset_dir)
+        #print('Making target dataset dir:', target_dataset_dir)
         os.makedirs(target_dataset_dir)
 
     for cname in class_names:
@@ -120,7 +120,7 @@ def save_data_subset (data_subset, target_dataset_dir):
         if not os.path.exists(target_class_dir):
             os.makedirs(target_class_dir)
 
-    print('idx_to_class_dir:', idx_to_class_dir)
+    #print('idx_to_class_dir:', idx_to_class_dir)
 
     for i,(path, label) in enumerate(images_info):
         target_class_dir = idx_to_class_dir[label]
@@ -244,7 +244,7 @@ def train_epoch (model, optimizer, criterion, train_loader, valid_loader):
 
 def train (model, model_path, train_loader, valid_loader): 
     model_params = [p for p in model.parameters() if p.requires_grad]
-    print('Number of params to learn:', len(model_params))
+    #print('Number of params to learn:', len(model_params))
     
     optimizer = optim.Adam(model_params, lr=0.001, weight_decay=1e-6)
     criterion = nn.CrossEntropyLoss()
@@ -277,7 +277,7 @@ def train (model, model_path, train_loader, valid_loader):
             no_progress += 1
             
         if no_progress >= configs.stop_patience:
-            print('Finished training in epoch {} because of no progress in {} consecutive epochs'.format(e, no_progress))
+            #print('Finished training in epoch {} because of no progress in {} consecutive epochs'.format(e, no_progress))
             break
     
     print('Best validation accuracy: {:.3f} (epoch {})'.format(best_acc, best_epoch))
@@ -307,6 +307,9 @@ def plot_results (train_losses, train_accs, val_losses, val_accs):
 
 
 def pretrain_model (full_dataset_path, dataset_path, base_model_file_path, model_file_path):
+    print('----------------------------------------------')
+    print('Pretraining the model ...')
+
     train_loader, valid_loader = prepare_data(full_dataset_path)
     save_data_subset(valid_loader.dataset, dataset_path)
 

@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 	string patternsFile = argv[6];
 	numm minSupportParam = atof(argv[7]);
  
-    cout << datasetName << " - " << datasetFile << " - " << numFeatures << " - " << numPatterns << " - " << patternsFile << " - " << minSupportParam << "\n"; 
+    //cout << datasetName << " - " << datasetFile << " - " << numFeatures << " - " << numPatterns << " - " << patternsFile << " - " << minSupportParam << "\n"; 
 
 	vector<tuple<string, string, vector<ind>, ind>> DataSets; //Name, Filepath, inputcolumns, outputcolumn
 	vector<ind> attributeIndices;
@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
 		{ 
 			// itrerate datasets and parse information
 			string dataName = get<0>(DataSets[i]);
-			cout << "=======" << dataName << "========\n";
+			//cout << "=======" << dataName << "========\n";
 			string file = get<1>(DataSets[i]);
 			vector<ind> dataColumns = get<2>(DataSets[i]);
 			ind outcome = get<3>(DataSets[i]);
@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
 								ofile << s << "\n"
 									<< flush;
 
-								cout << "Patterns: " << r << ", Base KL: " << baseKL << ", KL: " << KL << ", Gain: " << baseKL - KL << endl;
+								//cout << "Patterns: " << r << ", Base KL: " << baseKL << ", KL: " << KL << ", Gain: " << baseKL - KL << endl;
 							}
 						}
 						if (printTables)

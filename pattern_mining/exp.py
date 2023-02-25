@@ -39,7 +39,7 @@ def compute_pattern_accuracies (image_concepts, patterns_file):
             exp_patterns.loc[i, 'confidence'] = new_conf
             pattern['pred'] = new_pred
             pattern['confidence'] = new_conf
-            print('Exp pattern with pred {} and conf {} changed to new pred {} and new conf {}'.format(pred, conf, new_pred, new_conf))
+            #print('Exp pattern with pred {} and conf {} changed to new pred {} and new conf {}'.format(pred, conf, new_pred, new_conf))
 
         pattern_label = pattern['pred']
         supporting_indices = find_images_supporting_pattern(image_concepts, pattern)
@@ -60,6 +60,9 @@ def compute_pattern_accuracies (image_concepts, patterns_file):
 
 
 def run_exp (concepts_file_path, exp_patterns_path):
+    print('----------------------------------------------')
+    print('Explanation Tables pattern mining ...')
+
     if os.path.exists(exp_patterns_path):
         shutil.rmtree(exp_patterns_path)
     os.makedirs(exp_patterns_path)
@@ -68,7 +71,7 @@ def run_exp (concepts_file_path, exp_patterns_path):
     concepts_meta_cols = ['pred', 'label', 'id', 'file', 'path']
     concept_cols = list(set(image_concepts.columns) - set(concepts_meta_cols))
     num_concepts = len(concept_cols)
-    num_patterns = 30
+    num_patterns = 15
     remove_inactivated_patterns_num = 1 if configs.remove_inactivated_patterns else 0
     output_path_list = []
 
@@ -76,21 +79,24 @@ def run_exp (concepts_file_path, exp_patterns_path):
     explanations_path = os.path.join(current_path, 'exp', 'Explanations.cpp')
     lighthouse_path = os.path.join(current_path, 'exp', 'Lighthouse.cpp')
     res = subprocess.run(["g++", explanations_path, lighthouse_path, "-o", "program"], capture_output=True, universal_newlines=True)
-    print('Compilation return code:', res.returncode)
-    print('Compilation output:', res.stdout)
-    print('Compilation error:', res.stderr)
+    if res.stderr:
+        print('Compilation return code:', res.returncode)
+        print('Compilation output:', res.stdout)
+        print('Compilation error:', res.stderr)
 
     for sup in configs.min_support_params:
         output_path = os.path.join(exp_patterns_path, str(sup) + '.csv')
-        print('Arguments to the program: {} {} {} {} {} {} {}'.format(configs.dataset_name, concepts_file_path, 
-            num_concepts, num_patterns, remove_inactivated_patterns_num, output_path, sup))
+        # print('Arguments to the program: {} {} {} {} {} {} {}'.format(configs.dataset_name, concepts_file_path, 
+        #     num_concepts, num_patterns, remove_inactivated_patterns_num, output_path, sup))
 
         time.sleep(10)
         res = subprocess.run(["./program", configs.dataset_name, concepts_file_path, str(num_concepts), str(num_patterns), 
             str(remove_inactivated_patterns_num), output_path, str(sup)], capture_output=True, universal_newlines=True)
-        print('Execution return code:', res.returncode)
+        if res.stderr:
+            print('Execution return code:', res.returncode)
+            print('Execution error:', res.stderr)
+
         print('Execution output:', res.stdout)
-        print('Execution error:', res.stderr)
         output_path_list.append(output_path)
 
     for path in output_path_list:

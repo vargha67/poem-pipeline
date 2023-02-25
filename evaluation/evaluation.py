@@ -7,6 +7,9 @@ from IPython.display import display
 
 
 def evaluate_all_patterns (concepts_file_path, cart_patterns_path, ids_patterns_path, exp_patterns_path, evaluation_result_path):
+    print('----------------------------------------------')
+    print('Patterns evaluation ...')
+
     if os.path.exists(evaluation_result_path):
         shutil.rmtree(evaluation_result_path)
     os.makedirs(evaluation_result_path)
@@ -50,7 +53,7 @@ def evaluate_all_patterns (concepts_file_path, cart_patterns_path, ids_patterns_
 
         for k in cases:
             patterns = case_patterns[k].iloc[:num_patterns]
-            print(f'{k} patterns with support {sup}:')
+            #print(f'{k} patterns with support {sup}:')
             display(patterns)
 
             avg_size, avg_sup, avg_conf, avg_score = pattern_utils.compute_patterns_average_measures(patterns)

@@ -189,16 +189,16 @@ def train_evaluate_tree(X, Y, Y_true, classes, base_labels, model_params, featur
     # print('Leaves stats:', leaves_stats)
     
     n_nodes, n_leaves, max_depth = count_tree_leaves(model)
-    print('Tree has {} nodes, {} leaves, and max depth of {}'.format(n_nodes, n_leaves, max_depth))
+    #print('Tree has {} nodes, {} leaves, and max depth of {}'.format(n_nodes, n_leaves, max_depth))
     
     base_KL, final_KL, info_gain, tree_acc = evaluate_predictions(Y_list, classes, base_labels, preds, pred_leaves, leaves_stats)
     
     t2 = datetime.datetime.now()
-    print('Base KL:', base_KL)
-    print('Final KL:', final_KL)
+    #print('Base KL:', base_KL)
+    #print('Final KL:', final_KL)
     print('Info gain:', info_gain)
     print('Accuracy:', tree_acc)
-    print('Time for training and evaluating the tree:', t2-t1)
+    #print('Time for training and evaluating the tree:', t2-t1)
     
     tree_txt = tree.export_text(model, feature_names=feature_names, show_weights=True)
     # print(tree_txt)
@@ -215,6 +215,9 @@ def train_evaluate_tree(X, Y, Y_true, classes, base_labels, model_params, featur
 
 
 def run_cart (concepts_file_path, cart_patterns_path):
+    print('----------------------------------------------')
+    print('CART pattern mining ...')
+
     if os.path.exists(cart_patterns_path):
         shutil.rmtree(cart_patterns_path)
     os.makedirs(cart_patterns_path)
@@ -228,7 +231,7 @@ def run_cart (concepts_file_path, cart_patterns_path):
     class_rates = {k:(v/n_rows) for k,v in class_counts.items()}
     classes = list(class_rates.keys())
     num_classes = len(classes)
-    print('class_rates:', class_rates)
+    #print('class_rates:', class_rates)
 
     base_labels = compute_base_predictions(X, class_rates)
 
@@ -254,8 +257,8 @@ def run_cart (concepts_file_path, cart_patterns_path):
         output_path_list.append(output_path)
         
     t_end = datetime.datetime.now()
-    print("----------------------")
-    print('Total time:', t_end - t_start)
-    print('Results:', results)
+    # print("----------------------")
+    # print('Total time:', t_end - t_start)
+    # print('Results:', results)
 
     return output_path_list

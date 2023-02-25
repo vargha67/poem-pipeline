@@ -286,6 +286,8 @@ def display_patterns (all_patterns, concept_cols):
 
 def visualize_patterns (concepts_file_path, cart_patterns_path, ids_patterns_path, exp_patterns_path, 
                         activation_images_path, min_support=0.01, pattern_index=1, target_concept=None):
+    print('----------------------------------------------')
+    print('Pattern visualization ...')
 
     mpl.rcParams['lines.linewidth'] = 0.25
     mpl.rcParams['axes.spines.top'] = False

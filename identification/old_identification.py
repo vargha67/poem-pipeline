@@ -7,6 +7,9 @@ import os, shutil
 
 
 def concept_identification (broden_dataset_path, model_file_path, identification_result_path):
+    print('----------------------------------------------')
+    print('Concept identification ...')
+
     if os.path.exists(identification_result_path):
         shutil.rmtree(identification_result_path)
     os.makedirs(identification_result_path)

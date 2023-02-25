@@ -243,7 +243,7 @@ def deterministic_local_search(list_rules, df, Y, lambda_array, epsilon):
         
     best_element = np.argmax(each_obj_val)
     soln_set.add(best_element)
-    print("Initial rule: " + str(best_element))
+    #print("Initial rule: " + str(best_element))
     S_func_val = each_obj_val[best_element]
     
     restart_step2 = False
@@ -257,19 +257,19 @@ def deterministic_local_search(list_rules, df, Y, lambda_array, epsilon):
             
             if func_val > (1.0 + epsilon/(n*n)) * S_func_val:
                 soln_set.add(ind)
-                print("Adding rule "+str(ind))
+                #print("Adding rule "+str(ind))
                 S_func_val = func_val
                 restart_step2 = True
                 break
 
             t_end = datetime.datetime.now()
             if ((t_end - t_start).total_seconds() * 1000) > configs.ids_timeout:
-                print('Deterministic search timed out in add loop, returning the current results ...')
+                #print('Deterministic search timed out in add loop, returning the current results ...')
                 return soln_set, S_func_val
                 
-        print('Add loop finished!')
+        #print('Add loop finished!')
         if restart_step2:
-            print('Restarting step 2 ...')
+            #print('Restarting step 2 ...')
             restart_step2 = False
             continue
             
@@ -278,23 +278,23 @@ def deterministic_local_search(list_rules, df, Y, lambda_array, epsilon):
             
             if func_val > (1.0 + epsilon/(n*n)) * S_func_val:
                 soln_set.remove(ind)
-                print("Removing rule "+str(ind))
+                #print("Removing rule "+str(ind))
                 S_func_val = func_val
                 restart_step2 = True
                 break
 
             t_end = datetime.datetime.now()
             if ((t_end - t_start).total_seconds() * 1000) > configs.ids_timeout:
-                print('Deterministic search timed out in remove loop, returning the current results ...')
+                #print('Deterministic search timed out in remove loop, returning the current results ...')
                 return soln_set, S_func_val
         
-        print('Remove loop finished!')
+        #print('Remove loop finished!')
         if restart_step2:
-            print('Restarting step 2 ...')
+            #print('Restarting step 2 ...')
             restart_step2 = False
             continue
         
-        print('Evaluating s1 and s2 ...')
+        #print('Evaluating s1 and s2 ...')
         # Evaluation of s2 which is a very large set can take a very long time, and is the main performance bottleneck: 
         s1 = func_evaluation(soln_set, list_rules, df, Y, lambda_array)
         s2 = 0   # func_evaluation(set(range(len(list_rules))) - soln_set, list_rules, df, Y, lambda_array)
@@ -507,7 +507,7 @@ def evaluate_predictions(rules, X, Y_list, class_rates, base_labels):
         if v > max_rate: 
             max_rate = v
             majority_class = k
-    print('Class {} is the majority class with rate {}'.format(majority_class, max_rate))
+    #print('Class {} is the majority class with rate {}'.format(majority_class, max_rate))
     
     true_labels = []
     pred_labels = []
@@ -548,8 +548,8 @@ def run_process(X, Y, Y_true, class_rates, base_labels, search_params, n_rows):
     list_of_rules = createrules(itemsets, list(set(Y_list)))
     
     t2 = datetime.datetime.now()
-    print('Time for creating the candidate rules:', t2-t1)
-    print('Number of candidate rules generated:', len(list_of_rules))
+    # print('Time for creating the candidate rules:', t2-t1)
+    # print('Number of candidate rules generated:', len(list_of_rules))
 
     if configs.remove_inactivated_patterns:
         filtered_list_of_rules = []
@@ -564,7 +564,7 @@ def run_process(X, Y, Y_true, class_rates, base_labels, search_params, n_rows):
                 filtered_list_of_rules.append(r)
         
         list_of_rules = filtered_list_of_rules
-        print('Number of candidate rules reduced to {} after removing inactivated patterns.'.format(len(list_of_rules)))
+        #print('Number of candidate rules reduced to {} after removing inactivated patterns.'.format(len(list_of_rules)))
         if len(list_of_rules) == 0: 
             return [], 0, 0
         
@@ -579,8 +579,8 @@ def run_process(X, Y, Y_true, class_rates, base_labels, search_params, n_rows):
             soln_set, obj_val = deterministic_local_search(list_of_rules, X, Y_list, search_params['lambda_array'], search_params['epsilon'])
 
     t3 = datetime.datetime.now()
-    print('Time for local search:', t3-t2)
-    print('Best solution set indices with evaluation criteria {}: {}'.format(obj_val, soln_set))
+    # print('Time for local search:', t3-t2)
+    # print('Best solution set indices with evaluation criteria {}: {}'.format(obj_val, soln_set))
 
     solution_rules = [r for i,r in enumerate(list_of_rules) if i in soln_set]
     for r in solution_rules: 
@@ -590,10 +590,10 @@ def run_process(X, Y, Y_true, class_rates, base_labels, search_params, n_rows):
         
     base_KL, final_KL, info_gain, ids_acc = evaluate_predictions(solution_rules, X, Y_list, class_rates, base_labels)
     t4 = datetime.datetime.now()
-    print('Time for evaluating predictions:', t4-t3)
-    print('Total time of this execution:', t4-t1)
-    print('Base KL:', base_KL)
-    print('Final KL:', final_KL)
+    # print('Time for evaluating predictions:', t4-t3)
+    # print('Total time of this execution:', t4-t1)
+    # print('Base KL:', base_KL)
+    # print('Final KL:', final_KL)
     print('Info gain:', info_gain)
     print('Accuracy:', ids_acc)
     
@@ -619,6 +619,9 @@ def save_rules(solution_rules, feature_names, n_rows, output_path):
 
 
 def run_ids (concepts_file_path, ids_patterns_path):
+    print('----------------------------------------------')
+    print('IDS pattern mining ...')
+
     if os.path.exists(ids_patterns_path):
         shutil.rmtree(ids_patterns_path)
     os.makedirs(ids_patterns_path)
@@ -630,7 +633,7 @@ def run_ids (concepts_file_path, ids_patterns_path):
     feature_names = list(X.columns)
     class_counts = Y.value_counts().to_dict()
     class_rates = {k:(v/n_rows) for k,v in class_counts.items()}
-    print('class_rates:', class_rates)
+    #print('class_rates:', class_rates)
 
     base_labels = compute_base_predictions(X, class_rates)
 
@@ -655,8 +658,8 @@ def run_ids (concepts_file_path, ids_patterns_path):
         output_path_list.append(output_path)
 
     t_end = datetime.datetime.now()
-    print("----------------------")
-    print('Total time:', t_end - t_start)
-    print('Results:', results)
+    # print("----------------------")
+    # print('Total time:', t_end - t_start)
+    # print('Results:', results)
 
     return output_path_list

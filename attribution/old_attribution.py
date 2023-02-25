@@ -72,7 +72,7 @@ def load_channels_data (tally_path, thresholds_path):
             channels_map[i+1]['thresh'] = t
 
     print('Processing {} concepts and {} channels'.format(len(concepts), len(channels)))
-    print('channels_map:', channels_map)
+    #print('channels_map:', channels_map)
 
     return channels_map, channels, concepts
 
@@ -168,7 +168,7 @@ def extract_concepts (model, segmodel, upfn, renorm, data_loader, channels_map, 
         for n,l in model.named_modules():
             if n == 'model.' + configs.target_layer:
                 layer = l
-                print('Target layer found:', n)
+                #print('Target layer found:', n)
                 break
     layer.register_forward_hook(activations_hook)
 
@@ -258,10 +258,10 @@ def extract_concepts (model, segmodel, upfn, renorm, data_loader, channels_map, 
     total_overlap_ratio = total_overlap_ratio / num_images_attributed
     print('\nExtracted concepts from {} total and {} attributed images with accuracy {:.3f} and overlap ratio {:.2f}.' \
         .format(num_images, num_images_attributed, total_acc, total_overlap_ratio))
-    print('\nConcept counts:', concepts_counts)
-    for c,counts in concepts_counts_by_class.items():
-        print('\nConcept counts of class {}: {}'.format(c, counts))
-    print('\nChannel counts:', channels_counts)
+    # print('\nConcept counts:', concepts_counts)
+    # for c,counts in concepts_counts_by_class.items():
+    #     print('\nConcept counts of class {}: {}'.format(c, counts))
+    # print('\nChannel counts:', channels_counts)
 
     concepts_df = pd.DataFrame(concepts_rows_list)
     channels_df = pd.DataFrame(channels_rows_list)
@@ -287,7 +287,7 @@ def filter_extracted_concepts (concepts_df, channels_df, channels_map):
     cons_df = cons_df.iloc[:,var_col_indices]
     var_filtered_concepts = list(cons_df.columns)
     var_removed_concepts = set(initial_concepts) - set(var_filtered_concepts)
-    print('Concepts removed by variance filtering ({}): {}'.format(len(var_removed_concepts), var_removed_concepts))
+    #print('Concepts removed by variance filtering ({}): {}'.format(len(var_removed_concepts), var_removed_concepts))
 
     k = configs.max_concepts if len(var_filtered_concepts) > configs.max_concepts else 'all'
     mut_selector = SelectKBest(mutual_info_classif, k=k)
@@ -296,9 +296,9 @@ def filter_extracted_concepts (concepts_df, channels_df, channels_map):
     cons_df = cons_df.iloc[:,mut_col_indices]
     filtered_concepts = list(cons_df.columns)
     mut_removed_concepts = set(var_filtered_concepts) - set(filtered_concepts)
-    print('Concepts removed by mutual info filtering ({}): {}'.format(len(mut_removed_concepts), mut_removed_concepts))
-    print('Concepts reduced from {} to {} by concept filtering.'.format(len(initial_concepts), len(filtered_concepts)))
+    #print('Concepts removed by mutual info filtering ({}): {}'.format(len(mut_removed_concepts), mut_removed_concepts))
     print('Final concepts after filtering ({}): {}'.format(len(filtered_concepts), filtered_concepts))
+    print('Concepts reduced from {} to {} by concept filtering.'.format(len(initial_concepts), len(filtered_concepts)))
 
     filtered_concepts_df = pd.concat([cons_df, meta_df], axis=1)
     # display(filtered_concepts_df.head())
@@ -420,10 +420,10 @@ def save_image_concepts_dataset (concepts_df, channels_df, image_channels_counts
             filtered_channels_counts[ch] += val
 
     print('Saved {} activation images for {} images.'.format(num_act_images_saved, num_images))
-    print('\nFiltered concept counts:', filtered_concepts_counts)
-    for c,counts in filtered_concepts_counts_by_class.items():
-        print('\nFiltered concept counts of class {}: {}'.format(c, counts))
-    print('\nFiltered channel counts:', filtered_channels_counts)
+    # print('\nFiltered concept counts:', filtered_concepts_counts)
+    # for c,counts in filtered_concepts_counts_by_class.items():
+    #     print('\nFiltered concept counts of class {}: {}'.format(c, counts))
+    # print('\nFiltered channel counts:', filtered_channels_counts)
 
     concepts_df.to_csv(concepts_output_path, index=False)
     channels_df.to_csv(channels_output_path, index=False)
@@ -446,6 +446,9 @@ def save_image_concepts_dataset (concepts_df, channels_df, image_channels_counts
 
 def concept_attribution (dataset_path, model_file_path, segmenter_model_path, identification_result_path, concepts_file_path, 
                          channels_file_path, activation_images_path, concepts_evaluation_file_path):
+    print('----------------------------------------------')
+    print('Concept attribution ...')
+
     model = load_model(model_file_path)
     model.retain_layer(configs.target_layer)
 

@@ -55,7 +55,7 @@ def show_sample_segmentations (segmodel, dataset, sample_batch, renorm):
     seg = segmodel.segment_batch(renorm(sample_batch).cuda(), downsample=4)
 
     torch.set_printoptions(profile="full")
-    print('seg.shape:', seg.shape)
+    #print('seg.shape:', seg.shape)
 
     show([(iv.image(sample_batch[i]), iv.segmentation(seg[i,0]),
         iv.segment_key(seg[i,0], segmodel))
@@ -65,8 +65,8 @@ def show_sample_segmentations (segmodel, dataset, sample_batch, renorm):
 
 def show_sample_heatmaps (model, dataset, sample_batch):
     acts = model.retained_layer(configs.target_layer).cpu()
-    print('acts.shape:', acts.shape)
-    print('acts_reshaped.shape:', acts.view(acts.shape[0], acts.shape[1], -1).shape)
+    #print('acts.shape:', acts.shape)
+    #print('acts_reshaped.shape:', acts.view(acts.shape[0], acts.shape[1], -1).shape)
 
     ivsmall = imgviz.ImageVisualizer((100, 100), source=dataset)
     display(show.blocks(
@@ -77,7 +77,7 @@ def show_sample_heatmaps (model, dataset, sample_batch):
 
 
 def show_sample_image_activation (model, dataset, rq, topk, classlabels, sample_unit_number, sample_image_index):
-    print(topk.result()[1][sample_unit_number][sample_image_index], dataset.images[topk.result()[1][sample_unit_number][sample_image_index]])
+    #print(topk.result()[1][sample_unit_number][sample_image_index], dataset.images[topk.result()[1][sample_unit_number][sample_image_index]])
     image_number = topk.result()[1][sample_unit_number][sample_image_index].item()
 
     iv = imgviz.ImageVisualizer((224, 224), source=dataset, quantiles=rq,
@@ -88,11 +88,11 @@ def show_sample_image_activation (model, dataset, rq, topk, classlabels, sample_
     imgs = [renormalize.as_image(t, source=dataset) for t in batch]
     prednames = [classlabels[p.item()] for p in preds]
     acts = model.retained_layer(configs.target_layer)
-    print('acts.shape:', acts.shape)
-    print('acts_reshaped.shape:', acts.view(acts.shape[0], acts.shape[1], -1).shape)
+    #print('acts.shape:', acts.shape)
+    #print('acts_reshaped.shape:', acts.view(acts.shape[0], acts.shape[1], -1).shape)
     image_acts = acts[0,sample_unit_number].cpu().numpy()
     unit_quant = rq.quantiles(configs.activation_high_thresh)[sample_unit_number].item()
-    print('number of activations higher than quantile {}: {}'.format(unit_quant, numpy.sum(image_acts > unit_quant)))
+    #print('number of activations higher than quantile {}: {}'.format(unit_quant, numpy.sum(image_acts > unit_quant)))
 
     show([[img, 'pred: ' + pred, 'true: ' + gt] for img, pred, gt in zip(imgs, prednames, truth)])
     show([[iv.masked_image(batch[0], acts, (0, sample_unit_number))]])
@@ -217,7 +217,7 @@ def compute_top_channel_concepts (model, segmodel, upfn, dataset, rq, seglabels,
 
         # Though not ideal, this is the best we can do to exclude concepts which are very similar to the dataset classes: 
         if (len(configs.excluded_concepts) > 0) and (top_label in configs.excluded_concepts):
-            print('Channel {} top concepts: {}'.format(i, top_list))
+            #print('Channel {} top concepts: {}'.format(i, top_list))
             top_item = (0, '-', ('-','-'), 0.0)
             for j in range(1,len(top_list)):
                 item = top_list[j]
@@ -226,7 +226,7 @@ def compute_top_channel_concepts (model, segmodel, upfn, dataset, rq, seglabels,
                 if label not in configs.excluded_concepts:
                     top_item = item
                     break
-            print('Because top concept {} is among the excluded concepts, concept {} with iou {} is selected for channel {}'
+            #print('Because top concept {} is among the excluded concepts, concept {} with iou {} is selected for channel {}'
                 .format(top_label, top_item[1], top_item[3], i))
         unit_label_high.append(top_item)
 
@@ -281,6 +281,9 @@ def save_final_data (unit_label_high, label_list, level_high, level_low, result_
 
 
 def concept_identification (dataset_path, model_file_path, segmenter_model_path, identification_result_path):
+    print('----------------------------------------------')
+    print('Concept identification ...')
+
     if os.path.exists(identification_result_path):
         shutil.rmtree(identification_result_path)
     os.makedirs(identification_result_path)
@@ -292,7 +295,7 @@ def concept_identification (dataset_path, model_file_path, segmenter_model_path,
     classlabels = dataset.classes
     sample_size = len(dataset)
 
-    print('Inspecting layer %s of model %s on dataset %s' % (configs.target_layer, configs.model_name, configs.dataset_name))
+    # print('Inspecting layer %s of model %s on dataset %s' % (configs.target_layer, configs.model_name, configs.dataset_name))
     # print(model)
 
     args = EasyDict(model=configs.model_name, dataset=configs.dataset_name, seg=configs.seg_model_name, 
