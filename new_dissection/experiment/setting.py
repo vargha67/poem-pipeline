@@ -75,17 +75,19 @@ def load_segmenter(segmenter_name='netpqc', segmenter_model_path='datasets/segmo
     colors = ('c' in segmenter_name)
 
     segmodels = []
-    segmodels.append(segmenter.UnifiedParsingSegmenter(segsizes=[256],
+    segmodels.append(segmenter.UnifiedParsingSegmenter(
+            modeldir=segmenter_model_path,
+            segsizes=[256],
             all_parts=all_parts,
             segdiv=('quad' if quad_seg else None)))
     if textures:
         segmenter.ensure_segmenter_downloaded(segmenter_model_path, 'texture')
         segmodels.append(segmenter.SemanticSegmenter(
-            segvocab="texture", segarch=("resnet18dilated", "ppm_deepsup")))
+            modeldir=segmenter_model_path, segvocab="texture", segarch=("resnet18dilated", "ppm_deepsup")))
     if colors:
         segmenter.ensure_segmenter_downloaded(segmenter_model_path, 'color')
         segmodels.append(segmenter.SemanticSegmenter(
-            segvocab="color", segarch=("resnet18dilated", "ppm_deepsup")))
+            modeldir=segmenter_model_path, segvocab="color", segarch=("resnet18dilated", "ppm_deepsup")))
     if len(segmodels) == 1:
         segmodel = segmodels[0]
     else:

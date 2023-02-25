@@ -129,7 +129,7 @@ class UnifiedParsingSegmenter(BaseSegmenter):
     for the three largest object classes (sky, building, person).
     '''
 
-    def __init__(self, segsizes=None, segdiv=None, all_parts=False):
+    def __init__(self, modeldir='datasets/segmodel', segsizes=None, segdiv=None, all_parts=False):
         # Create a segmentation model
         if segsizes is None:
             segsizes = [256]
@@ -138,9 +138,9 @@ class UnifiedParsingSegmenter(BaseSegmenter):
         segvocab = 'upp'
         segarch = ('resnet50', 'upernet')
         epoch = 40
-        ensure_segmenter_downloaded('datasets/segmodel', 'upp')
+        ensure_segmenter_downloaded(modeldir, 'upp')
         segmodel = load_unified_parsing_segmentation_model(
-            segarch, segvocab, epoch)
+            modeldir, segarch, segvocab, epoch)
         segmodel.cuda()
         self.segmodel = segmodel
         self.segsizes = segsizes
@@ -561,8 +561,8 @@ def component_masks(segmentation_batch):
             yield i, (labeled == label)
 
 
-def load_unified_parsing_segmentation_model(segmodel_arch, segvocab, epoch):
-    segmodel_dir = 'datasets/segmodel/%s-%s-%s' % ((segvocab,) + segmodel_arch)
+def load_unified_parsing_segmentation_model(modeldir, segmodel_arch, segvocab, epoch):
+    segmodel_dir = modeldir + '/%s-%s-%s' % ((segvocab,) + segmodel_arch)
     # Load json of class names and part/object structure
     with open(os.path.join(segmodel_dir, 'labels.json')) as f:
         labeldata = json.load(f)
@@ -590,7 +590,7 @@ def load_unified_parsing_segmentation_model(segmodel_arch, segvocab, epoch):
 
 def load_segmentation_model(modeldir, segmodel_arch, segvocab, epoch=None):
     # Load csv of class names
-    segmodel_dir = 'datasets/segmodel/%s-%s-%s' % ((segvocab,) + segmodel_arch)
+    segmodel_dir = modeldir + '/%s-%s-%s' % ((segvocab,) + segmodel_arch)
     with open(os.path.join(segmodel_dir, 'labels.json')) as f:
         labeldata = EasyDict(json.load(f))
     # Automatically pick the last epoch available.
