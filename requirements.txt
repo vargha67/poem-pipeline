@@ -15,4 +15,4 @@ Pillow
 imageio
 opencv-python
 statsmodels
-gdown=4.6.4
+gdown==4.6.4
