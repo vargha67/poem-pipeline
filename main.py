@@ -110,5 +110,5 @@ def run_pipeline():
                                          exp_patterns_path, activation_images_path)
 
 
-if __name__ == 'main':
+if __name__ == '__main__':
     run_pipeline()
