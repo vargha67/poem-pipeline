@@ -2,28 +2,68 @@ from utils import extract_class_titles
 
 
 model_settings = {
-    "resnet18": {'target_layer': 'layer4.1.conv2'}, 
-    "resnet50": {'target_layer': 'layer4.2.conv3'}, 
-    "vgg16": {'target_layer': 'features.conv5_3'},   # 'features.28'
-    "alexnet": {'target_layer': 'conv5'}
+    "resnet18": {
+        'target_layer': 'layer4.1.conv2',
+        'url': 'https://drive.google.com/file/d/1PFztt2odOnxsih7FSxrAEb-g7oUlPZcg/view?usp=share_link'
+    }, 
+    "resnet50": {
+        'target_layer': 'layer4.2.conv3',
+        'url': 'https://drive.google.com/file/d/1it6kuferC3VmR7YGdnUzTgXwjU-2tBco/view?usp=share_link'
+    }, 
+    "vgg16": {
+        'target_layer': 'features.conv5_3',   # 'features.28'
+        'url': 'https://drive.google.com/file/d/1r3wO_FWnSKIHI34B8HiZjOyxFW8dk1ZV/view?usp=share_link'
+    },
+    # "alexnet": {
+    #     'target_layer': 'conv5'
+    # }
 }
 
-model_dataset_settings = {
-    "resnet18_indoor_bedroom_kitchen": {'load_model': False, 'num_classes': 2, 'base_num_classes': 1000},
-    "resnet18_places_bedroom_kitchen": {'load_model': True, 'num_classes': 2, 'base_num_classes': 365},
-    "resnet18_places_bedroom_kitchen_livingroom": {'load_model': True, 'num_classes': 3, 'base_num_classes': 365},
-    "resnet18_places_coffeeshop_restaurant": {'load_model': True, 'num_classes': 2, 'base_num_classes': 365},
-    "resnet18_imagenet_minivan_pickup": {'load_model': False, 'num_classes': 2, 'base_num_classes': 1000, 'excluded_concepts': ['pickup', 'van']},   # ['car', 'bus', 'coach', 'truck', 'van']
-    "resnet18_imagenet_laptop_mobile": {'load_model': False, 'num_classes': 2, 'base_num_classes': 1000, 'excluded_concepts': ['laptop', 'mobile', 'computer']},
-    "resnet50_places_bedroom_kitchen": {'load_model': True, 'num_classes': 2, 'base_num_classes': 365}, 
-    "resnet50_places_bedroom_kitchen_livingroom": {'load_model': True, 'num_classes': 3, 'base_num_classes': 365},
-    "resnet50_places_coffeeshop_restaurant": {'load_model': True, 'num_classes': 2, 'base_num_classes': 365},
-    "resnet50_imagenet_minivan_pickup": {'load_model': False, 'num_classes': 2, 'base_num_classes': 1000, 'excluded_concepts': ['pickup', 'van']},
-    "vgg16_places_bedroom_kitchen": {'load_model': True, 'num_classes': 2, 'base_num_classes': 365}, 
-    "vgg16_places_coffeeshop_restaurant": {'load_model': True, 'num_classes': 2, 'base_num_classes': 365},
-    "vgg16_places_bedroom_kitchen_livingroom": {'load_model': True, 'num_classes': 3, 'base_num_classes': 365},
-    "vgg16_imagenet_minivan_pickup": {'load_model': False, 'num_classes': 2, 'base_num_classes': 1000, 'excluded_concepts': ['pickup', 'van']}
+dataset_settings = {
+    "places_bedroom_kitchen_livingroom": {
+        'load_model': True, 
+        'num_classes': 3, 
+        'base_num_classes': 365,
+        'url': 'https://drive.google.com/file/d/1mVHRa1tDtUyW3dSdOCmGPPAYMjFR-8l4/view?usp=share_link'
+    },
+    "places_coffeeshop_restaurant": {
+        'load_model': True, 
+        'num_classes': 2, 
+        'base_num_classes': 365, 
+        'url': 'https://drive.google.com/file/d/1E4f2zVkTwwQI4OBQeGeGedkWS4w0cCUq/view?usp=share_link'
+    },
+    "imagenet_minivan_pickup": {
+        'load_model': False, 
+        'num_classes': 2, 
+        'base_num_classes': 1000, 
+        'excluded_concepts': ['pickup', 'van'],   # ['car', 'bus', 'coach', 'truck', 'van']
+        'url': 'https://drive.google.com/file/d/1mPJi4iLMsSQb8P145t_LtWyA2MVZtJ23/view?usp=share_link'
+    },
+    "imagenet_laptop_mobile": {
+        'load_model': False, 
+        'num_classes': 2, 
+        'base_num_classes': 1000, 
+        'excluded_concepts': ['laptop', 'mobile', 'computer'],
+        'url': 'https://drive.google.com/file/d/1ACPq3T0vy_Dm9Twzu3cy824IcKDcQrd9/view?usp=share_link'
+    }
 }
+
+# model_dataset_settings = {
+#     "resnet18_indoor_bedroom_kitchen": {'load_model': False, 'num_classes': 2, 'base_num_classes': 1000},
+#     "resnet18_places_bedroom_kitchen": {'load_model': True, 'num_classes': 2, 'base_num_classes': 365},
+#     "resnet18_places_bedroom_kitchen_livingroom": {'load_model': True, 'num_classes': 3, 'base_num_classes': 365},
+#     "resnet18_places_coffeeshop_restaurant": {'load_model': True, 'num_classes': 2, 'base_num_classes': 365},
+#     "resnet18_imagenet_minivan_pickup": {'load_model': False, 'num_classes': 2, 'base_num_classes': 1000, 'excluded_concepts': ['pickup', 'van']},   # ['car', 'bus', 'coach', 'truck', 'van']
+#     "resnet18_imagenet_laptop_mobile": {'load_model': False, 'num_classes': 2, 'base_num_classes': 1000, 'excluded_concepts': ['laptop', 'mobile', 'computer']},
+#     "resnet50_places_bedroom_kitchen": {'load_model': True, 'num_classes': 2, 'base_num_classes': 365}, 
+#     "resnet50_places_bedroom_kitchen_livingroom": {'load_model': True, 'num_classes': 3, 'base_num_classes': 365},
+#     "resnet50_places_coffeeshop_restaurant": {'load_model': True, 'num_classes': 2, 'base_num_classes': 365},
+#     "resnet50_imagenet_minivan_pickup": {'load_model': False, 'num_classes': 2, 'base_num_classes': 1000, 'excluded_concepts': ['pickup', 'van']},
+#     "vgg16_places_bedroom_kitchen": {'load_model': True, 'num_classes': 2, 'base_num_classes': 365}, 
+#     "vgg16_places_coffeeshop_restaurant": {'load_model': True, 'num_classes': 2, 'base_num_classes': 365},
+#     "vgg16_places_bedroom_kitchen_livingroom": {'load_model': True, 'num_classes': 3, 'base_num_classes': 365},
+#     "vgg16_imagenet_minivan_pickup": {'load_model': False, 'num_classes': 2, 'base_num_classes': 1000, 'excluded_concepts': ['pickup', 'van']}
+# }
 
 
 # Run configuration: 
@@ -35,17 +75,22 @@ run_evaluation = True
 run_visualization = True
 
 # Model and dataset settings: 
-current_setting_title = "resnet18_places_bedroom_kitchen_livingroom"
-title_parts = current_setting_title.split('_')
-model_name = title_parts[0]
-dataset_name = '_'.join(title_parts[1:])
+model_name = 'resnet18'
+dataset_name = 'places_bedroom_kitchen_livingroom'
 dataset_pure_name = dataset_name.split('_')[0]
 
-current_setting = model_dataset_settings[current_setting_title] 
-load_model_from_disk = current_setting['load_model']   # Is true in case of having a model file pretrained on the target dataset (e.g. Places365) rather than the default dataset of Torchvision which is ImageNet
-num_classes = current_setting['num_classes']
-base_num_classes = current_setting['base_num_classes']
-target_layer = model_settings[model_name]['target_layer']
+current_model_setting = model_settings[model_name]
+target_layer = current_model_setting['target_layer']
+base_model_url = current_model_setting['url']
+
+current_dataset_setting = dataset_settings[dataset_name] 
+load_model_from_disk = current_dataset_setting['load_model']   # Is true in case of having a model file pretrained on the target dataset (e.g. Places365) rather than the default dataset of Torchvision which is ImageNet
+num_classes = current_dataset_setting['num_classes']
+base_num_classes = current_dataset_setting['base_num_classes']
+full_dataset_url = current_dataset_setting['url']
+
+broden_dataset_url = 'https://drive.google.com/file/d/1U96rDGgarZwL6bX7RaStTY_wT30MLusD/view?usp=share_link'
+segmenter_model_url = 'https://drive.google.com/file/d/1DTNvF80el488egl2s9uaz7uIbA5La8sa/view?usp=share_link'
 
 # Pretraining settings: 
 pretrain_mode = 'feature_extraction'   # full_fine_tuning, partial_fine_tuning, feature_extraction
@@ -70,7 +115,7 @@ min_iou = 0.04
 activation_high_thresh = 0.99
 activation_low_thresh = 0.7
 exclude_similar_concepts = True   # It is better to exclude a concept which is very similar to the dataset classes; e.g. laptop or computer concepts in laptop vs mobile dataset
-excluded_concepts = current_setting['excluded_concepts'] if exclude_similar_concepts and ('excluded_concepts' in current_setting) else []
+excluded_concepts = current_dataset_setting['excluded_concepts'] if exclude_similar_concepts and ('excluded_concepts' in current_dataset_setting) else []
 
 # Concept attribution settings:
 batch_size = 16
@@ -135,7 +180,8 @@ max_patterns_to_keep = [5 for sup in min_support_params]
 
 
 def update_configs(_run_pretraining, _run_identification, _run_attribution, _run_pattern_mining, _run_evaluation, 
-                   _run_visualization, _current_setting_title, _old_process, _rule_methods=None, _max_patterns_to_keep=None):
+                   _run_visualization, _model_name, _dataset_name, _old_process, _rule_methods=None, 
+                   _min_support_params=None, _max_patterns_to_keep=None):
 
     global run_pretraining
     global run_identification
@@ -143,17 +189,18 @@ def update_configs(_run_pretraining, _run_identification, _run_attribution, _run
     global run_pattern_mining
     global run_evaluation
     global run_visualization
-    global current_setting_title
-    global title_parts
     global model_name
     global dataset_name
     global dataset_pure_name
-    global current_setting
+    global current_model_setting
+    global current_dataset_setting
     global load_model_from_disk
+    global base_model_url
     global num_classes
     global base_num_classes
     global target_layer
     global excluded_concepts
+    global full_dataset_url
     global class_titles
     global classes
     global class_names
@@ -168,18 +215,20 @@ def update_configs(_run_pretraining, _run_identification, _run_attribution, _run
     run_evaluation = _run_evaluation
     run_visualization = _run_visualization
 
-    current_setting_title = _current_setting_title
-    title_parts = current_setting_title.split('_')
-    model_name = title_parts[0]
-    dataset_name = '_'.join(title_parts[1:])
+    model_name = _model_name
+    dataset_name = _dataset_name
     dataset_pure_name = dataset_name.split('_')[0]
 
-    current_setting = model_dataset_settings[current_setting_title] 
-    load_model_from_disk = current_setting['load_model']
-    num_classes = current_setting['num_classes']
-    base_num_classes = current_setting['base_num_classes']
-    target_layer = model_settings[model_name]['target_layer']
-    excluded_concepts = current_setting['excluded_concepts'] if exclude_similar_concepts and ('excluded_concepts' in current_setting) else []
+    current_model_setting = model_settings[model_name]
+    target_layer = current_model_setting['target_layer']
+    base_model_url = current_model_setting['url']
+
+    current_dataset_setting = dataset_settings[dataset_name] 
+    load_model_from_disk = current_dataset_setting['load_model']
+    num_classes = current_dataset_setting['num_classes']
+    base_num_classes = current_dataset_setting['base_num_classes']
+    full_dataset_url = current_dataset_setting['url']
+    excluded_concepts = current_dataset_setting['excluded_concepts'] if exclude_similar_concepts and ('excluded_concepts' in current_dataset_setting) else []
 
     class_titles = extract_class_titles(dataset_name, binning_classes)
     classes = list(class_titles.keys())
@@ -189,5 +238,7 @@ def update_configs(_run_pretraining, _run_identification, _run_attribution, _run
     rule_methods = ['cart'] if old_process else ['cart', 'exp', 'ids']
     if _rule_methods:
         rule_methods = _rule_methods
+    if _min_support_params:
+        min_support_params = _min_support_params
     if _max_patterns_to_keep:
         max_patterns_to_keep = _max_patterns_to_keep
