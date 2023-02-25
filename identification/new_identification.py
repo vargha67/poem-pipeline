@@ -226,8 +226,8 @@ def compute_top_channel_concepts (model, segmodel, upfn, dataset, rq, seglabels,
                 if label not in configs.excluded_concepts:
                     top_item = item
                     break
-            #print('Because top concept {} is among the excluded concepts, concept {} with iou {} is selected for channel {}'
-                .format(top_label, top_item[1], top_item[3], i))
+            # print('Because top concept {} is among the excluded concepts, concept {} with iou {} is selected for channel {}'
+            #     .format(top_label, top_item[1], top_item[3], i))
         unit_label_high.append(top_item)
 
     label_list = [labelcat for concept, label, labelcat, iou in unit_label_high if iou > configs.min_iou]
