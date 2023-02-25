@@ -1,4 +1,13 @@
 import os, sys
+
+current_path = os.path.dirname(os.path.abspath(__file__))
+try:
+    sys.path.append(os.path.join(current_path, 'new_dissection'))
+    sys.path.append(os.path.join(current_path, 'old_dissection'))
+except Exception as ex:
+    print('Exception in adding to sys path:', ex)
+
+
 import numpy as np
 import torch
 import configs, utils
@@ -13,13 +22,6 @@ from visualization import visualization
 def run_pipeline():
 
     # Initial configurations: 
-    current_path = os.path.dirname(os.path.abspath(__file__))
-    try:
-        sys.path.append(os.path.join(current_path, 'new_dissection'))
-        sys.path.append(os.path.join(current_path, 'old_dissection'))
-    except Exception as ex:
-        print('Exception in adding to sys path:', ex)
-
     torch.backends.cudnn.benchmark = True
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print("Cuda available:", torch.cuda.is_available())
