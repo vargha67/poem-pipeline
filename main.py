@@ -7,7 +7,7 @@ try:
 except Exception as ex:
     print('Exception in adding to sys path:', ex)
 
-
+import gc
 import numpy as np
 import torch
 import configs, utils
@@ -65,6 +65,8 @@ def run_pipeline():
     # Model pretraining: 
     if configs.run_pretraining:
         pretraining.pretrain_model(full_dataset_path, dataset_path, base_model_file_path, model_file_path)
+        gc.collect()
+        torch.cuda.empty_cache()
 
     # Concept identification: 
     if configs.run_identification:
@@ -74,6 +76,8 @@ def run_pipeline():
             new_identification.concept_identification(dataset_path, model_file_path, segmenter_model_path, identification_result_path)
 
         utils.save_imported_packages(packages_file_path)
+        gc.collect()
+        torch.cuda.empty_cache()
 
     # Concept attribution:
     if configs.run_attribution:
@@ -87,6 +91,8 @@ def run_pipeline():
                                                 concepts_evaluation_file_path)
 
         utils.save_imported_packages(packages_file_path)
+        gc.collect()
+        torch.cuda.empty_cache()
 
     # Pattern mining using CART, IDS and Explanation Tables: 
     if configs.run_pattern_mining:
