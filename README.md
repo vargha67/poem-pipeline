@@ -33,7 +33,7 @@ python main.py
 ```
 
 However, in order to reduce the chance of environment and GPU errors, 
-we recommend running in a [Google Colab](colab.research.google.com/) environment.
+we recommend running in a [Google Colab](https://colab.research.google.com/) environment.
 A Jupyter notebook called `run_poem_pipeline` is provided, which can be uploaded and run in Google Colab. 
 
 The notebook clones the project, installs the requirements, changes the default configs if needed, 
