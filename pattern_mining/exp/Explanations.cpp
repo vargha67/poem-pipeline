@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 	vector<ind> tablesizes = {maxRules}; // explanation table sizes at which to evaluate time and gain
 	vector<numm> minSupportParams = {minSupportParam}; // {0.01, 0.03, 0.05, 0.1, 0.15, 0.2};
 
-	const bool internalPrint = true; // some methods offer internal prints
+	const bool internalPrint = false; // some methods offer internal prints
 	const bool externalPrint = true;  // log results as blackbox evaluation
 	const bool printTables = true;	  // print final explanation table to console
 
