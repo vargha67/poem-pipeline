@@ -165,7 +165,7 @@ class_names = list(class_titles.values())
 rule_methods = ['cart'] if old_process else ['cart', 'exp', 'ids']
 min_support_params = [0.01, 0.03, 0.05, 0.1, 0.15, 0.2]
 ids_smooth_search = False
-ids_timeout = 600000
+ids_timeout = 500000
 
 # Pattern visualization settings:
 meta_cols = ['index', 'pred', 'support', 'confidence', 'accuracy', 'method', 'score']
