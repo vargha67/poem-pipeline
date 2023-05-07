@@ -33,6 +33,7 @@ def prepare_data (dataset_path, images_path=None, labels_path=None):
 
     train_set = None
     valid_set = None
+    explanation_set = None
     train_dataset_dir = dataset_path
     valid_dataset_dir = dataset_path
 
@@ -97,8 +98,20 @@ def prepare_data (dataset_path, images_path=None, labels_path=None):
 
     train_loader = DataLoader(train_set, batch_size=configs.train_batch_size, shuffle=True)
     valid_loader = DataLoader(valid_set, batch_size=configs.train_batch_size, shuffle=True)
+
+    explanation_loader = valid_loader
+    valid_ratio = 1.0 - configs.train_ratio
+    if configs.explanation_ratio < valid_ratio:
+        valid_data_size = len(valid_set)
+        valid_indexes = list(range(valid_data_size))
+        np.random.shuffle(valid_indexes)
+        explanation_size = int((configs.explanation_ratio / valid_ratio) * valid_data_size)
+        explanation_indexes = valid_indexes[:explanation_size]
+
+        explanation_set = ImageSubset(valid_set, explanation_indexes)
+        explanation_loader = DataLoader(explanation_set, batch_size=configs.train_batch_size, shuffle=True)
     
-    return train_loader, valid_loader
+    return train_loader, valid_loader, explanation_loader
 
 
 
@@ -310,8 +323,8 @@ def pretrain_model (full_dataset_path, dataset_path, base_model_file_path, model
     print('----------------------------------------------')
     print('Pretraining the model ...')
 
-    train_loader, valid_loader = prepare_data(full_dataset_path)
-    save_data_subset(valid_loader.dataset, dataset_path)
+    train_loader, valid_loader, explanation_loader = prepare_data(full_dataset_path)
+    save_data_subset(explanation_loader.dataset, dataset_path)
 
     model = pretrained_model(base_model_file_path)
     model = model.cuda()

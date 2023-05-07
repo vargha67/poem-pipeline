@@ -96,6 +96,7 @@ segmenter_model_url = 'https://drive.google.com/file/d/1DTNvF80el488egl2s9uaz7uI
 pretrain_mode = 'feature_extraction'   # full_fine_tuning, partial_fine_tuning, feature_extraction
 target_classes = []
 train_ratio = 0.7
+explanation_ratio = 0.3
 train_batch_size = 32   # previously batch_size
 epochs = 50
 stop_patience = 7
@@ -180,8 +181,9 @@ max_patterns_to_keep = [5 for sup in min_support_params]
 
 
 def update_configs(_run_pretraining, _run_identification, _run_attribution, _run_pattern_mining, _run_evaluation, 
-                   _run_visualization, _model_name, _dataset_name, _old_process, _rule_methods=None, 
-                   _min_support_params=None, _max_patterns_to_keep=None):
+                   _run_visualization, _model_name, _dataset_name, _old_process, _explanation_ratio=None, 
+                   _filter_concepts=None, _max_concepts=None, _rule_methods=None, _min_support_params=None, 
+                   _max_patterns_to_keep=None):
 
     global run_pretraining
     global run_identification
@@ -207,6 +209,9 @@ def update_configs(_run_pretraining, _run_identification, _run_attribution, _run
     global old_process
     global rule_methods
     global max_patterns_to_keep
+    global explanation_ratio
+    global filter_concepts
+    global max_concepts
 
     run_pretraining = _run_pretraining
     run_identification = _run_identification
@@ -238,7 +243,18 @@ def update_configs(_run_pretraining, _run_identification, _run_attribution, _run
     rule_methods = ['cart'] if old_process else ['cart', 'exp', 'ids']
     if _rule_methods:
         rule_methods = _rule_methods
+
     if _min_support_params:
         min_support_params = _min_support_params
+
     if _max_patterns_to_keep:
         max_patterns_to_keep = _max_patterns_to_keep
+    
+    if _filter_concepts != None:
+        filter_concepts = _filter_concepts
+
+    if _max_concepts:
+        max_concepts = _max_concepts
+
+    if _explanation_ratio:
+        explanation_ratio = _explanation_ratio

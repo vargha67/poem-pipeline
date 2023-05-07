@@ -2,7 +2,7 @@ import configs
 from pattern_mining.pattern_utils import find_images_supporting_pattern, find_images_matching_pattern
 import subprocess
 import pandas as pd
-import os, time, shutil
+import os, time, shutil, datetime
 
 
 
@@ -85,6 +85,7 @@ def run_exp (concepts_file_path, exp_patterns_path):
         print('Compilation error:', res.stderr)
 
     for sup in configs.min_support_params:
+        t_start = datetime.datetime.now()
         output_path = os.path.join(exp_patterns_path, str(sup) + '.csv')
         # print('Arguments to the program: {} {} {} {} {} {} {}'.format(configs.dataset_name, concepts_file_path, 
         #     num_concepts, num_patterns, remove_inactivated_patterns_num, output_path, sup))
@@ -98,6 +99,8 @@ def run_exp (concepts_file_path, exp_patterns_path):
 
         print('Execution output:', res.stdout)
         output_path_list.append(output_path)
+        t_end = datetime.datetime.now()
+        print('Time:', t_end - t_start)
 
     for path in output_path_list:
         compute_pattern_accuracies(image_concepts, path)

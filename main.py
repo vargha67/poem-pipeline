@@ -1,4 +1,4 @@
-import os, sys, shutil
+import os, sys, shutil, datetime
 
 current_path = os.path.dirname(os.path.abspath(__file__))
 try:
@@ -73,9 +73,11 @@ def run_pipeline():
     if not os.path.exists(results_path):
         os.makedirs(results_path)
 
+    t_start_total = datetime.datetime.now()
 
     # Model pretraining: 
     if configs.run_pretraining:
+        t_start = datetime.datetime.now()
         if not os.path.exists(full_dataset_path):
             gdown.download(url=configs.full_dataset_url, output=full_dataset_file_path, quiet=True, fuzzy=True)
             shutil.unpack_archive(full_dataset_file_path, datasets_path)
@@ -86,9 +88,12 @@ def run_pipeline():
         pretraining.pretrain_model(full_dataset_path, dataset_path, base_model_file_path, model_file_path)
         gc.collect()
         torch.cuda.empty_cache()
+        t_end = datetime.datetime.now()
+        print('Time spent for pretraining:', t_end - t_start)
 
     # Concept identification: 
     if configs.run_identification:
+        t_start = datetime.datetime.now()
         if configs.old_process: 
             if not os.path.exists(broden_dataset_path):
                 gdown.download(url=configs.broden_dataset_url, output=broden_dataset_file_path, quiet=True, fuzzy=True)
@@ -105,9 +110,12 @@ def run_pipeline():
         utils.save_imported_packages(packages_file_path)
         gc.collect()
         torch.cuda.empty_cache()
+        t_end = datetime.datetime.now()
+        print('Time spent for identification:', t_end - t_start)
 
     # Concept attribution:
     if configs.run_attribution:
+        t_start = datetime.datetime.now()
         if not os.path.exists(segmenter_model_path):
             gdown.download(url=configs.segmenter_model_url, output=segmenter_model_file_path, quiet=True, fuzzy=True)
             shutil.unpack_archive(segmenter_model_file_path, models_path)
@@ -124,9 +132,12 @@ def run_pipeline():
         utils.save_imported_packages(packages_file_path)
         gc.collect()
         torch.cuda.empty_cache()
+        t_end = datetime.datetime.now()
+        print('Time spent for attribution:', t_end - t_start)
 
     # Pattern mining using CART, IDS and Explanation Tables: 
     if configs.run_pattern_mining:
+        t_start = datetime.datetime.now()
         if 'cart' in configs.rule_methods:
             patterns_path_list = cart.run_cart(concepts_file_path, cart_patterns_path)
 
@@ -136,15 +147,24 @@ def run_pipeline():
         if 'exp' in configs.rule_methods:
             patterns_path_list = exp.run_exp(concepts_file_path, exp_patterns_path)
 
+        t_end = datetime.datetime.now()
+        print('Time spent for pattern mining:', t_end - t_start)
+
     # Patterns evaluation: 
     if configs.run_evaluation:
+        t_start = datetime.datetime.now()
         evaluations_path_list = evaluation.evaluate_all_patterns(concepts_file_path, cart_patterns_path, ids_patterns_path, 
                                                                  exp_patterns_path, evaluation_result_path)
+        t_end = datetime.datetime.now()
+        print('Time spent for evaluation:', t_end - t_start)
 
     # Patterns visualization:
     if configs.run_visualization:
         visualization.visualize_patterns(concepts_file_path, cart_patterns_path, ids_patterns_path, 
                                          exp_patterns_path, activation_images_path)
+
+    t_end_total = datetime.datetime.now()
+    print('Total pipeline time:', t_end_total - t_start_total)
 
 
 if __name__ == '__main__':

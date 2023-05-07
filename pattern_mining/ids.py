@@ -650,14 +650,17 @@ def run_ids (concepts_file_path, ids_patterns_path):
     # print('Parameter combinations:', param_combinations)
 
     for comb in param_combinations:
+        t_start = datetime.datetime.now()
         params = {k:v for k,v in zip(param_keys, comb)}
         solution_rules, info_gain, ids_acc = run_process(X, Y, Y_true, class_rates, base_labels, params, n_rows)
         results.append({'params': params, 'rule_set_size': len(solution_rules), 'info_gain': info_gain})
         output_path = os.path.join(ids_patterns_path, str(params['min_support']) + '.csv')
         save_rules(solution_rules, feature_names, n_rows, output_path)
         output_path_list.append(output_path)
+        t_end = datetime.datetime.now()
+        print('Time:', t_end - t_start)
 
-    t_end = datetime.datetime.now()
+    # t_end = datetime.datetime.now()
     # print("----------------------")
     # print('Total time:', t_end - t_start)
     # print('Results:', results)

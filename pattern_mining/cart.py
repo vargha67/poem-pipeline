@@ -248,6 +248,7 @@ def run_cart (concepts_file_path, cart_patterns_path):
     # print('Parameter combinations:', param_combinations)
 
     for comb in param_combinations:
+        t_start = datetime.datetime.now()
         params = {k:v for k,v in zip(param_keys, comb)}
         model, leaves_stats, n_leaves, info_gain, tree_acc = \
             train_evaluate_tree(X, Y, Y_true, classes, base_labels, params, feature_names)
@@ -255,8 +256,10 @@ def run_cart (concepts_file_path, cart_patterns_path):
         output_path = os.path.join(cart_patterns_path, str(params['min_samples_leaf']) + '.csv')
         extract_save_rules(model, feature_names, leaves_stats, n_rows, output_path)
         output_path_list.append(output_path)
+        t_end = datetime.datetime.now()
+        print('Time:', t_end - t_start)
         
-    t_end = datetime.datetime.now()
+    # t_end = datetime.datetime.now()
     # print("----------------------")
     # print('Total time:', t_end - t_start)
     # print('Results:', results)
