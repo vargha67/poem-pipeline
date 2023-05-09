@@ -505,30 +505,34 @@ def filter_extracted_concepts (concepts_df, channels_df, channels_map):
     meta_cols = ['pred', 'label', 'id', 'file', 'path']
     meta_df = concepts_df[meta_cols]
     concept_cols = list(set(concepts_df.columns) - set(meta_cols))
+    valid_concepts = set([v['concept'] for k,v in channels_map.items() if v['is_valid'] == True])
+    concept_cols = [c for c in concept_cols if c in valid_concepts]
     concept_cols.sort()
     cons_df = concepts_df[concept_cols]
 
     initial_concepts = list(cons_df.columns)
+    filtered_concepts = initial_concepts
     print('Initial concepts ({}): {}'.format(len(initial_concepts), initial_concepts))
-    
-    var_selector = VarianceThreshold(threshold=(configs.low_variance_thresh * (1 - configs.low_variance_thresh)))
-    var_selector.fit(cons_df)
-    var_col_indices = var_selector.get_support(indices=True)
-    cons_df = cons_df.iloc[:,var_col_indices]
-    var_filtered_concepts = list(cons_df.columns)
-    var_removed_concepts = set(initial_concepts) - set(var_filtered_concepts)
-    #print('Concepts removed by variance filtering ({}): {}'.format(len(var_removed_concepts), var_removed_concepts))
 
-    k = configs.max_concepts if len(var_filtered_concepts) > configs.max_concepts else 'all'
-    mut_selector = SelectKBest(mutual_info_classif, k=k)
-    mut_selector.fit(cons_df, preds_df)
-    mut_col_indices = mut_selector.get_support(indices=True)
-    cons_df = cons_df.iloc[:,mut_col_indices]
-    filtered_concepts = list(cons_df.columns)
-    mut_removed_concepts = set(var_filtered_concepts) - set(filtered_concepts)
-    #print('Concepts removed by mutual info filtering ({}): {}'.format(len(mut_removed_concepts), mut_removed_concepts))
-    print('Final concepts after filtering ({}): {}'.format(len(filtered_concepts), filtered_concepts))
-    print('Concepts reduced from {} to {} by concept filtering.'.format(len(initial_concepts), len(filtered_concepts)))
+    if configs.filter_concepts:
+        var_selector = VarianceThreshold(threshold=(configs.low_variance_thresh * (1 - configs.low_variance_thresh)))
+        var_selector.fit(cons_df)
+        var_col_indices = var_selector.get_support(indices=True)
+        cons_df = cons_df.iloc[:,var_col_indices]
+        var_filtered_concepts = list(cons_df.columns)
+        var_removed_concepts = set(initial_concepts) - set(var_filtered_concepts)
+        #print('Concepts removed by variance filtering ({}): {}'.format(len(var_removed_concepts), var_removed_concepts))
+
+        k = configs.max_concepts if len(var_filtered_concepts) > configs.max_concepts else 'all'
+        mut_selector = SelectKBest(mutual_info_classif, k=k)
+        mut_selector.fit(cons_df, preds_df)
+        mut_col_indices = mut_selector.get_support(indices=True)
+        cons_df = cons_df.iloc[:,mut_col_indices]
+        filtered_concepts = list(cons_df.columns)
+        mut_removed_concepts = set(var_filtered_concepts) - set(filtered_concepts)
+        #print('Concepts removed by mutual info filtering ({}): {}'.format(len(mut_removed_concepts), mut_removed_concepts))
+        print('Final concepts after filtering ({}): {}'.format(len(filtered_concepts), filtered_concepts))
+        print('Concepts reduced from {} to {} by concept filtering.'.format(len(initial_concepts), len(filtered_concepts)))
 
     filtered_concepts_df = pd.concat([cons_df, meta_df], axis=1)
     # display(filtered_concepts_df.head())
@@ -726,8 +730,7 @@ def concept_attribution (dataset_path, model_file_path, segmenter_model_path, id
     concepts_df, channels_df, acts_list, image_channels_counts_list, image_threshs_list, total_overlap_ratio = \
         extract_concepts(model, segmodel, upfn, renorm, data_loader, channels_map, seg_concept_index_map, channels, concepts)
 
-    if configs.filter_concepts:
-        concepts_df, channels_df, concepts, channels = filter_extracted_concepts(concepts_df, channels_df, channels_map)
+    concepts_df, channels_df, concepts, channels = filter_extracted_concepts(concepts_df, channels_df, channels_map)
 
     save_image_concepts_dataset(concepts_df, channels_df, image_channels_counts_list, image_threshs_list, 
         total_overlap_ratio, acts_list, upfn, dataset, channels_map, concepts, channels, concepts_file_path, 
