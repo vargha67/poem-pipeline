@@ -66,6 +66,7 @@ def load_channels_data (tally_path):
             continue
 
         if ch_item['cat'] not in configs.included_categories:
+            print('Skipping channel because of category not included', ch_item, configs.included_categories)
             continue
 
         channel = ch_item['unit'] + 1
@@ -84,7 +85,8 @@ def load_channels_data (tally_path):
     concepts.sort()
 
     print('Processing {} concepts and {} channels'.format(len(concepts), len(channels)))
-    #print('channels_map:', channels_map)
+    print('concepts:', concepts)
+    print('channels_map:', channels_map)
 
     return channels_map, channels, concepts
 
