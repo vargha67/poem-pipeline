@@ -127,6 +127,7 @@ n_top_channels_per_concept = 3
 overlay_opacity = 0.5
 check_gradients = True
 pool_gradients = False
+included_categories = ['object', 'material', 'part', 'color']
 
 # Segment-gradient overlap settings:
 check_seg_overlap = True
@@ -180,10 +181,9 @@ max_patterns_to_keep = [5 for sup in min_support_params]
 
 
 
-def update_configs(_run_pretraining, _run_identification, _run_attribution, _run_pattern_mining, _run_evaluation, 
-                   _run_visualization, _model_name, _dataset_name, _old_process, _explanation_ratio=None, 
-                   _filter_concepts=None, _max_concepts=None, _rule_methods=None, _min_support_params=None, 
-                   _max_patterns_to_keep=None):
+def update_configs(_run_pretraining, _run_identification, _run_attribution, _run_pattern_mining, _run_evaluation, _run_visualization, 
+                   _model_name, _dataset_name, _old_process, _explanation_ratio=None, _min_iou=None, _included_categories=None, 
+                   _filter_concepts=None, _max_concepts=None, _rule_methods=None, _min_support_params=None, _max_patterns_to_keep=None):
 
     global run_pretraining
     global run_identification
@@ -212,6 +212,8 @@ def update_configs(_run_pretraining, _run_identification, _run_attribution, _run
     global explanation_ratio
     global filter_concepts
     global max_concepts
+    global included_categories
+    global min_iou
 
     run_pretraining = _run_pretraining
     run_identification = _run_identification
@@ -258,3 +260,9 @@ def update_configs(_run_pretraining, _run_identification, _run_attribution, _run
 
     if _explanation_ratio:
         explanation_ratio = _explanation_ratio
+
+    if _included_categories:
+        included_categories = _included_categories
+
+    if _min_iou:
+        min_iou = _min_iou

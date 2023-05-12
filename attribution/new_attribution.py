@@ -65,6 +65,9 @@ def load_channels_data (tally_path):
             print('Error: incomplete data in channel item:', ch_item)
             continue
 
+        if ch_item['cat'] not in configs.included_categories:
+            continue
+
         channel = ch_item['unit'] + 1
         channels_map[channel] = {
             'concept': ch_item['label'],
