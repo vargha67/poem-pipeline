@@ -208,6 +208,7 @@ def update_configs(_run_pretraining, _run_identification, _run_attribution, _run
     global class_names
     global old_process
     global rule_methods
+    global min_support_params
     global max_patterns_to_keep
     global explanation_ratio
     global filter_concepts
