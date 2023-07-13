@@ -1,7 +1,7 @@
 import configs
 # from old_dissection import settings   # This kind of import does not reflect changes to settings in other codes like feature_operation.py
 import settings
-import main
+import main_process
 import os, shutil
 
 
@@ -18,5 +18,5 @@ def concept_identification (broden_dataset_path, model_file_path, identification
                              configs.activation_high_thresh, configs.min_iou, identification_result_path, 
                              model_file_path, broden_dataset_path)
 
-    main.run()
+    main_process.run()
 
