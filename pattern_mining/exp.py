@@ -5,8 +5,9 @@ import pandas as pd
 import os, time, shutil, datetime
 
 
-
 def compute_pattern_accuracies (image_concepts, patterns_file):
+    """ Computes the accuracy of patterns and inverts patterns with lower than 0.5 confidence """
+
     exp_patterns = pd.read_csv(patterns_file)
     exp_patterns['accuracy'] = 0.0
 
@@ -58,8 +59,9 @@ def compute_pattern_accuracies (image_concepts, patterns_file):
     exp_patterns.to_csv(patterns_file, index=False)
 
 
-
 def run_exp (concepts_file_path, exp_patterns_path):
+    """ Main process of running Explanation Tables to find patterns in the image concepts dataset """
+
     print('----------------------------------------------')
     print('Explanation Tables pattern mining ...')
 

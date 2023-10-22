@@ -4,8 +4,9 @@ import random
 import pandas as pd
 
 
-
 def KL_divergence(p, q): 
+    """ Computes the Kullback-Leibler divergence between two distributions or sets of class labels (e.g. predictions and actual labels) """
+
     eps = 1e-15
     sum = 0
     for i in range(len(p)):  # iterating over each data example
@@ -19,8 +20,9 @@ def KL_divergence(p, q):
     return sum
 
 
-
 def accuracy(p, q):
+    """ Computes the accuracy percentage by comparing the predictions and actual labels """
+
     true = 0
     for i in range(len(p)):
         pi = p[i]
@@ -31,8 +33,9 @@ def accuracy(p, q):
     return true / len(p)
 
 
-
 def compute_base_predictions(X, class_rates):
+    """ Computes the base (prior) predictions by random choice from classes weighted by their data count """
+
     classes = list(class_rates.keys())
     rates = list(class_rates.values())
 
@@ -45,8 +48,9 @@ def compute_base_predictions(X, class_rates):
     return base_labels
 
 
-
 def compute_pattern_score (row, concept_cols):
+    """ Computes pattern score based on support, confidence and size """
+
     sup = row['support']
     conf = row['confidence']
     size = 0
@@ -59,8 +63,9 @@ def compute_pattern_score (row, concept_cols):
     return score
 
 
-
 def load_concepts_data(file_path, class_column, label_column, extra_columns=[], to_str=False):
+    """ Loads the image concepts dataset """
+
     df = pd.read_csv(file_path)
     Y = df[class_column]
     Y_true = df[label_column]
@@ -73,9 +78,10 @@ def load_concepts_data(file_path, class_column, label_column, extra_columns=[], 
     return X, Y, Y_true
 
 
-
 def load_patterns (concepts_file_path, exp_patterns_file_path, ids_patterns_file_path, cart_patterns_file_path, 
                     rule_methods=configs.rule_methods, score_sorting=True):
+    """ Loads, merges and sorts the patterns from different rule mining methods """
+
     all_patterns_list = []
 	
     if "exp" in rule_methods: 
@@ -147,8 +153,9 @@ def load_patterns (concepts_file_path, exp_patterns_file_path, ids_patterns_file
     return all_patterns, image_concepts, concept_cols
 
 
-
 def find_images_supporting_pattern (image_concepts, pattern):
+    """ Finds images supporting a pattern's concepts """
+
     df = image_concepts.copy()
     for attr in list(pattern.index): 
         pattern_value = pattern[attr]
@@ -166,8 +173,9 @@ def find_images_supporting_pattern (image_concepts, pattern):
     return supporting_indices
 
 
-
 def find_images_matching_pattern (image_concepts, pattern, supporting_indices=None): 
+    """ Finds images matching a pattern's concepts and outcome """
+
     if supporting_indices is None:
         supporting_indices = find_images_supporting_pattern(image_concepts, pattern)
     pattern_label = pattern['pred']
@@ -182,8 +190,9 @@ def find_images_matching_pattern (image_concepts, pattern, supporting_indices=No
     return matching_indices
 
 
-
 def find_images_supporting_pattern_not_matching (image_concepts, pattern, supporting_indices=None, matching_indices=None):
+    """ Finds images supporting a pattern's concepts, but not matching its outcome """
+
     if supporting_indices is None:
         supporting_indices = find_images_supporting_pattern(image_concepts, pattern)
     if matching_indices is None:
@@ -193,8 +202,9 @@ def find_images_supporting_pattern_not_matching (image_concepts, pattern, suppor
     return nonmatching_indices
 
 
-
 def find_images_matching_pattern_wrong_predicted (image_concepts, pattern, matching_indices=None):
+    """ Finds images matching a pattern's concepts and outcome, but predicted incorrectly by the model """
+
     if matching_indices is None:
         matching_indices = find_images_matching_pattern(image_concepts, pattern)
 
@@ -208,8 +218,9 @@ def find_images_matching_pattern_wrong_predicted (image_concepts, pattern, match
     return wrong_indices
 
 
-
 def find_images_having_concept (image_concepts, target_concept): 
+    """ Finds images attributed to a target concept """
+
     image_target_concepts = list(image_concepts[target_concept])
     matching_indices = []
 
@@ -220,8 +231,9 @@ def find_images_having_concept (image_concepts, target_concept):
     return matching_indices
 
 
-
 def find_first_supported_pattern_for_image (img_concepts, patterns):
+    """ Finds the first pattern supported by an image concepts """
+
     for i,pattern in patterns.iterrows():
         is_match = True
         for attr in list(pattern.index):
@@ -236,8 +248,9 @@ def find_first_supported_pattern_for_image (img_concepts, patterns):
     return -1, None
 
 
-
 def compute_pattern_class_covers (pattern, image_concepts, preds, classes):
+    """ Finds a pattern's coverage for different classes (i.e. the distribution of outcomes of its supporting images) """
+
     indexes = find_images_supporting_pattern(image_concepts, pattern)
     preds_list = preds.iloc[indexes].tolist()
 
@@ -249,8 +262,9 @@ def compute_pattern_class_covers (pattern, image_concepts, preds, classes):
     return {k:(v/sup) for k,v in class_covers.items()}
 
 
-
 def compute_patterns_average_measures (patterns):
+    """ Computes average size, support, confidence and score of a set of patterns """
+
     cnt = len(patterns.index)
     avg_size = 0
     avg_sup = 0
@@ -273,8 +287,9 @@ def compute_patterns_average_measures (patterns):
     return avg_size, avg_sup, avg_conf, avg_score
 
 
-
 def compute_patterns_info_gain (patterns, image_concepts, preds):
+    """ Computes the information gain from a set of patterns """
+
     n_patterns = len(patterns.index)
     n_rows = len(preds.index)
     class_counts = preds.value_counts().to_dict()

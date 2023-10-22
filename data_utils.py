@@ -5,6 +5,8 @@ from torchvision import datasets
 
 
 class ImageDataset (Dataset):
+    """ This class extends Dataset to allow reading and preprocessing an images dataset """
+
     def __init__(self, images_path, file_names, labels, transform):
         self.images_path = images_path
         self.file_names = file_names
@@ -29,9 +31,9 @@ class ImageDataset (Dataset):
         return img, fname
 
 
-
-# This class helps to be able to access class index, targets and file paths of the dataset, which are absent in the Subset instance itself
 class ImageSubset (Subset):
+    """ This class helps to be able to access class index, targets and file paths of the dataset, which are absent in the Subset class itself """
+
     def __init__(self, dataset, indexes):
         super().__init__(dataset, indexes)
         self.class_to_idx = dataset.class_to_idx
@@ -39,9 +41,9 @@ class ImageSubset (Subset):
         self.samples = [s for i,s in enumerate(dataset.samples) if i in indexes]
 
 
-
 class CustomImageFolder (datasets.ImageFolder):
-    # Override this method to also return image paths
+    """ This class extends ImageFolder to additionally return image paths """
+    
     def __getitem__(self, index):
         original_tuple = super(CustomImageFolder, self).__getitem__(index)
         path = self.imgs[index][0]

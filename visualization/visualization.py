@@ -8,8 +8,9 @@ import cv2
 from IPython.display import display
 
 
-
 def get_pattern_description (pattern):
+    """ Returns a human-readable representation of a rule/pattern """
+
     antecedents = []
     for attr in list(pattern.index): 
         if (attr not in configs.meta_cols) and (pattern[attr] != -1):
@@ -23,8 +24,9 @@ def get_pattern_description (pattern):
     return desc
 
 
-
 def get_image_description (img_concepts, target_concept=None, target_channel=None):
+    """ Returns the description below an image in the visualizations """
+
     desc = 'Predicted ' + r'$\it{' + configs.class_titles[img_concepts['pred']] + '}$'
     desc += ', Labeled ' + r'$\it{' + configs.class_titles[img_concepts['label']] + '}$'
 
@@ -57,8 +59,9 @@ def get_image_description (img_concepts, target_concept=None, target_channel=Non
     return desc
 
 
-
 def list_image_activation_images (image_fname, activations_path, target_concept=None):
+    """ Collects the paths of activation images for an image """
+
     ind = image_fname.rfind('.')
     image_fname_raw = image_fname[:ind]
 
@@ -104,8 +107,9 @@ def list_image_activation_images (image_fname, activations_path, target_concept=
     return activations_info
 
 
-
 def prepare_image_items_for_display (matching_image_concepts, activations_path=None, target_concept=None):
+    """ Prepares the path and description of images for display """
+
     image_items = []
     for i, (ind, img_concepts) in enumerate(matching_image_concepts.iterrows()):
         img_item = {}
@@ -131,8 +135,9 @@ def prepare_image_items_for_display (matching_image_concepts, activations_path=N
     return image_items
 
 
-
 def plot_images (image_items, n_cols=3): 
+    """ Plots the images in appropriate matrix format """
+
     n_images = len(image_items)
     if n_images == 0:
         return
@@ -157,8 +162,9 @@ def plot_images (image_items, n_cols=3):
     plt.show()
 
 
-
 def display_images_matching_pattern (pattern, image_concepts, activations_path=None, target_concept=None, max_images=20):
+    """ Displays images matching a pattern's concepts and outcome """
+
     matching_indices = pattern_utils.find_images_matching_pattern(image_concepts, pattern)
     matching_image_concepts = image_concepts.iloc[matching_indices].iloc[:max_images]
     image_items = prepare_image_items_for_display(matching_image_concepts, activations_path, target_concept)
@@ -168,8 +174,9 @@ def display_images_matching_pattern (pattern, image_concepts, activations_path=N
     plot_images(image_items, n_cols=4)
 
 
-
 def display_images_supporting_pattern_not_matching (pattern, image_concepts, activations_path=None, target_concept=None, max_images=20):
+    """ Displays images supporting a pattern's concepts, but not matching its outcome """
+
     nonmatching_indices = pattern_utils.find_images_supporting_pattern_not_matching(image_concepts, pattern)
     nonmatching_image_concepts = image_concepts.iloc[nonmatching_indices].iloc[:max_images]
     image_items = prepare_image_items_for_display(nonmatching_image_concepts, activations_path, target_concept)
@@ -179,8 +186,9 @@ def display_images_supporting_pattern_not_matching (pattern, image_concepts, act
     plot_images(image_items, n_cols=4)
 
 
-
 def display_images_matching_pattern_wrong_predicted (pattern, image_concepts, activations_path=None, target_concept=None, max_images=20):
+    """ Displays images matching a pattern's concepts and outcome, but predicted incorrectly by the model """
+
     wrong_indices = pattern_utils.find_images_matching_pattern_wrong_predicted(image_concepts, pattern)
     wrong_image_concepts = image_concepts.iloc[wrong_indices].iloc[:max_images]
     image_items = prepare_image_items_for_display(wrong_image_concepts, activations_path, target_concept)
@@ -190,8 +198,9 @@ def display_images_matching_pattern_wrong_predicted (pattern, image_concepts, ac
     plot_images(image_items, n_cols=4)
 
 
-
 def display_image_activated_concepts (img_concepts, activations_path):
+    """ Displays the set of activation images for an image """
+
     img_id = img_concepts['id']
     img_fname = img_concepts['file']
     activations_info = list_image_activation_images(img_fname, activations_path)
@@ -208,8 +217,9 @@ def display_image_activated_concepts (img_concepts, activations_path):
         plot_images(image_items, n_cols=3)
 
 
-
 def display_images_having_concept (image_concepts, target_concept, activations_path=None, max_images=20):
+    """ Displays all images attributed to a concept """
+
     matching_indices = pattern_utils.find_images_having_concept(image_concepts, target_concept)
     matching_image_concepts = image_concepts.iloc[matching_indices].iloc[:max_images]
     image_items = prepare_image_items_for_display(matching_image_concepts, activations_path, target_concept)
@@ -218,8 +228,9 @@ def display_images_having_concept (image_concepts, target_concept, activations_p
     plot_images(image_items, n_cols=4)
 
 
-
 def display_single_images (image_concepts, target_concept=None, target_channel=None):
+    """ Displays a set of images in normal or activation forms """
+
     image_items = []
     for i, (ind, img_concepts) in enumerate(image_concepts.iterrows()):
         img_item = {}
@@ -230,8 +241,9 @@ def display_single_images (image_concepts, target_concept=None, target_channel=N
     plot_images(image_items, n_cols=4)
 
 
-
 def get_feature_value_desc (val):
+    """ Returns the appropriate label for a feature value """
+
     if val == -1:
         return ''
 
@@ -255,8 +267,9 @@ def get_feature_value_desc (val):
     return ''
 
 
-
 def display_patterns (all_patterns, concept_cols):
+    """ Displays the combined list of patterns from different methods """
+
     # Use a copy of the patterns dataframe for display:
     all_patterns_df = all_patterns.copy(deep=True)
     all_patterns_df.set_index('index', inplace=True)
@@ -283,9 +296,10 @@ def display_patterns (all_patterns, concept_cols):
     display(all_patterns_df)
 
 
-
 def visualize_patterns (concepts_file_path, cart_patterns_path, ids_patterns_path, exp_patterns_path, 
                         activation_images_path, min_support=0.01, pattern_index=1, target_concept=None):
+    """ Main process of visualizing the list of patterns and sample related images of a sample pattern from the list """
+
     print('----------------------------------------------')
     print('Pattern visualization ...')
 

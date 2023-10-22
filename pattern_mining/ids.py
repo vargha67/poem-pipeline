@@ -6,7 +6,6 @@ import math, os, datetime, random, itertools, shutil
 from apyori import apriori
 
 
-
 class rule:
     # rule is of the form if A == a and B == b, then class_1
     # one of the member variables is itemset - a set of patterns {(A,a), (B,b)}
@@ -94,9 +93,9 @@ class rule:
         return True
 
 
-
-# This function basically takes a data frame and a support threshold and returns itemsets which satisfy the threshold
 def run_apriori(df, support_thres):
+    """ Takes a dataframe and a support threshold and returns itemsets which satisfy the threshold """
+
     # the idea is to basically make a list of strings out of df and run apriori api on it 
     # return the frequent itemsets
     dataset = []
@@ -118,9 +117,9 @@ def run_apriori(df, support_thres):
     return list_itemsets
 
 
-
-# This function converts a list of itemsets (stored as list of lists of strings) into rule objects
 def createrules(freq_itemsets, labels_set):
+    """ Converts a list of itemsets (stored as list of lists of strings) into rule objects """
+
     # create a list of rule objects from frequent itemsets 
     list_of_rules = []
     for one_itemset in freq_itemsets:
@@ -137,24 +136,24 @@ def createrules(freq_itemsets, labels_set):
     return list_of_rules
 
 
-
-# compute the maximum length of any rule in the candidate rule set
 def max_rule_length(list_rules):
+    """ Computes the maximum length of any rule in the candidate rule set """
+
     len_arr = []
     for r in list_rules:
         len_arr.append(r.get_length())
     return max(len_arr)
 
 
-
-# compute the number of points which are covered both by r1 and r2 w.r.t. data frame df
 def overlap(r1, r2, df):
+    """ Computes the number of points which are covered both rules in the dataframe """
+
     return sorted(list(set(r1.get_cover(df)).intersection(set(r2.get_cover(df)))))
 
 
-
-# computes the objective value of a given solution set
 def func_evaluation(soln_set, list_rules, df, Y, lambda_array):
+    """ Computes and evaluates the objective value of a given solution set """
+
     # evaluate the objective function based on rules in solution set 
     # soln set is a set of indexes which when used to index elements in list_rules point to the exact rules in the solution set
     # compute f1 through f7 and we assume there are 7 lambdas in lambda_array
@@ -225,9 +224,9 @@ def func_evaluation(soln_set, list_rules, df, Y, lambda_array):
     return obj_val
 
 
-
-# deterministic local search algorithm which returns a solution set as well as the corresponding objective value
 def deterministic_local_search(list_rules, df, Y, lambda_array, epsilon):
+    """ Deterministic local search algorithm which returns a solution set as well as the corresponding objective value """
+
     # step by step implementation of deterministic local search algorithm in the 
     # FOCS paper: https://people.csail.mit.edu/mirrokni/focs07.pdf (page 4-5)
     t_start = datetime.datetime.now()
@@ -308,7 +307,6 @@ def deterministic_local_search(list_rules, df, Y, lambda_array, epsilon):
             return set(range(len(list_rules))) - soln_set, s2
 
 
-
 # Helper function for smooth_local_search routine: Samples a set of elements based on delta 
 def sample_random_set(soln_set, delta, len_list_rules):
     all_rule_indexes = set(range(len_list_rules))
@@ -331,9 +329,9 @@ def sample_random_set(soln_set, delta, len_list_rules):
     return return_set
 
 
-
-# Helper function for smooth_local_search routine: Computes estimated gain of adding an element to the solution set
 def estimate_omega_for_element(soln_set, delta, rule_x_index, list_rules, df, Y, lambda_array, error_threshold):
+    """ Computes estimated gain of adding an element to the solution set """
+
     #assumes rule_x_index is not in soln_set 
     Exp1_func_vals = []
     Exp2_func_vals = []
@@ -364,9 +362,8 @@ def estimate_omega_for_element(soln_set, delta, rule_x_index, list_rules, df, Y,
     return np.mean(Exp1_func_vals) - np.mean(Exp2_func_vals)
 
 
-
-# Helper function for smooth_local_search routine: Computes the 'estimate' of optimal value using random search 
 def compute_OPT(list_rules, df, Y, lambda_array):
+    """ Computes the estimate of optimal value using random search """
     opt_set = set()
     for i in range(len(list_rules)):
         r_val = np.random.uniform()
@@ -375,9 +372,9 @@ def compute_OPT(list_rules, df, Y, lambda_array):
     return func_evaluation(opt_set, list_rules, df, Y, lambda_array)
 
 
-
-# smooth local search algorithm which returns a solution set
 def smooth_local_search(list_rules, df, Y, lambda_array, delta, delta_prime):
+    """ Smooth local search algorithm which returns a solution set """
+
     # step by step implementation of smooth local search algorithm in the 
     # FOCS paper: https://people.csail.mit.edu/mirrokni/focs07.pdf (page 6)
     t_start = datetime.datetime.now()
@@ -445,8 +442,9 @@ def smooth_local_search(list_rules, df, Y, lambda_array, delta, delta_prime):
         return sample_random_set(soln_set, delta_prime, n)
 
 
-
 def apply_smooth_search(list_of_rules, df, Y, lambda_array, delta1, delta_prime1, delta2, delta_prime2):
+    """ Applies the smooth search using different delta and compares and returns the better solution set """
+
     s1 = smooth_local_search(list_of_rules, df, Y, lambda_array, delta1, delta_prime1)
     s2 = smooth_local_search(list_of_rules, df, Y, lambda_array, delta2, delta_prime2)
     f1 = func_evaluation(s1, list_of_rules, df, Y, lambda_array)
@@ -457,8 +455,9 @@ def apply_smooth_search(list_of_rules, df, Y, lambda_array, delta1, delta_prime1
         return s2, f2
 
 
-
 def predict_single_data(rules, data, majority_class):
+    """ Finds the best matching rule for a single data instance based on coverage and majority class if needed """
+
     rand_num = random.randrange(10)
     #if rand_num == 0: print('Predicting data example:', data.to_dict())
     labels = set()
@@ -483,8 +482,9 @@ def predict_single_data(rules, data, majority_class):
         return best_label, best_rule
 
 
-
 def get_pattern_description (pattern, n_rows):
+    """ Returns a human-readable description of a rule/pattern """
+
     antecedents = []
     for item in pattern.itemset: 
         antecedents.append(item[0] + '=' + str(item[1]))
@@ -497,8 +497,9 @@ def get_pattern_description (pattern, n_rows):
     return desc
 
 
-
 def evaluate_predictions(rules, X, Y_list, class_rates, base_labels):
+    """ Evaluates the model predictions based on accuracy and information gain """
+
     classes = list(class_rates.keys())
     
     majority_class = None
@@ -537,8 +538,9 @@ def evaluate_predictions(rules, X, Y_list, class_rates, base_labels):
     return base_KL, final_KL, info_gain, ids_acc
 
 
-
 def run_process(X, Y, Y_true, class_rates, base_labels, search_params, n_rows):
+    """ Generates the candidate rules and then runs the search process to find the best set of rules """
+
     print("----------------------")
     print("Running {} search with search params {}".format(('smooth' if configs.ids_smooth_search else 'deterministic'), search_params))
     t1 = datetime.datetime.now()
@@ -600,8 +602,9 @@ def run_process(X, Y, Y_true, class_rates, base_labels, search_params, n_rows):
     return solution_rules, info_gain, ids_acc
 
 
-
 def save_rules(solution_rules, feature_names, n_rows, output_path):
+    """ Extracts and saves the rules/patterns """
+
     rows_list = []
     for r in solution_rules:
         row = {c:-1 for c in feature_names}
@@ -617,8 +620,9 @@ def save_rules(solution_rules, feature_names, n_rows, output_path):
     df.to_csv(output_path, index=False)
 
 
-
 def run_ids (concepts_file_path, ids_patterns_path):
+    """ Main process of running IDS (interpretable decision sets) to find patterns in the image concepts dataset """
+
     print('----------------------------------------------')
     print('IDS pattern mining ...')
 

@@ -9,8 +9,9 @@ from new_dissection.netdissect.easydict import EasyDict
 from new_dissection.experiment import dissect_experiment as experiment
 
 
-
 def load_model (model_file=None):
+    """ Loads the CNN model in the named format needed for network dissection """
+
     if configs.model_name == 'vgg16':
         model = vgg16_model(num_classes=configs.num_classes)
     else:
@@ -25,8 +26,9 @@ def load_model (model_file=None):
     return model
 
 
-
 def load_dataset (dataset_dir=None):
+    """ Loads and preprocesses the explanation dataset """
+
     transform = transforms.Compose([
         transforms.Resize(256),
         transforms.CenterCrop(configs.image_size),
@@ -40,8 +42,9 @@ def load_dataset (dataset_dir=None):
     return dataset
 
 
-
 def show_sample_images (model, dataset, sample_batch, batch_indices, classlabels):
+    """ Displays sample images with their model predictions """
+
     truth = [classlabels[dataset[i][1]] for i in batch_indices]
     preds = model(sample_batch.cuda()).max(1)[1]
     imgs = [renormalize.as_image(t, source=dataset) for t in sample_batch]
@@ -49,8 +52,9 @@ def show_sample_images (model, dataset, sample_batch, batch_indices, classlabels
     show([[img, 'pred: ' + pred, 'true: ' + gt] for img, pred, gt in zip(imgs, prednames, truth)])
 
 
-
 def show_sample_segmentations (segmodel, dataset, sample_batch, renorm):
+    """ Displays sample image segmentations """
+
     iv = imgviz.ImageVisualizer(120, source=dataset)
     seg = segmodel.segment_batch(renorm(sample_batch).cuda(), downsample=4)
 
@@ -62,8 +66,9 @@ def show_sample_segmentations (segmodel, dataset, sample_batch, renorm):
         for i in range(len(seg))])
 
 
-
 def show_sample_heatmaps (model, dataset, sample_batch):
+    """ Displays sample image activation heatmaps """
+
     acts = model.retained_layer(configs.target_layer).cpu()
     #print('acts.shape:', acts.shape)
     #print('acts_reshaped.shape:', acts.view(acts.shape[0], acts.shape[1], -1).shape)
@@ -75,8 +80,9 @@ def show_sample_heatmaps (model, dataset, sample_batch):
     ))
 
 
-
 def show_sample_image_activation (model, dataset, rq, topk, classlabels, sample_unit_number, sample_image_index):
+    """ Displays sample image with its activation map """
+
     #print(topk.result()[1][sample_unit_number][sample_image_index], dataset.images[topk.result()[1][sample_unit_number][sample_image_index]])
     image_number = topk.result()[1][sample_unit_number][sample_image_index].item()
 
@@ -99,8 +105,9 @@ def show_sample_image_activation (model, dataset, rq, topk, classlabels, sample_
     show([[iv.heatmap(acts, (0, sample_unit_number), mode='nearest')]])
 
 
-
 def save_top_channel_images (model, dataset, rq, topk, result_dir):
+    """ Saves top dataset images activating for each filter """
+
     pbar.descnext('unit_images')
     iv = imgviz.ImageVisualizer((100, 100), source=dataset, quantiles=rq,
             level=rq.quantiles(configs.activation_high_thresh))
@@ -123,8 +130,9 @@ def save_top_channel_images (model, dataset, rq, topk, result_dir):
     return unit_images
 
 
-
 def show_sample_channel_images (unit_images, sample_unit_numbers, unit_label_high=None):
+    """ Displays sample images with highest activation for sample filters """
+
     for u in sample_unit_numbers:
         if unit_label_high is None:
             print('unit %d' % u)
@@ -133,9 +141,9 @@ def show_sample_channel_images (unit_images, sample_unit_numbers, unit_label_hig
         display(unit_images[u])
 
 
-
-# Computes and keeps channel activations for all images in a way that any activation quantile for each channel can be computed easily
 def compute_tally_quantile (model, dataset, upfn, sample_size, result_dir):
+    """ Computes and keeps filter activations for all images in a way that any activation quantile for each filter can be computed easily """
+
     pbar.descnext('rq')
     def compute_samples(batch, *args):
         image_batch = batch.cuda()
@@ -153,10 +161,9 @@ def compute_tally_quantile (model, dataset, upfn, sample_size, result_dir):
     return rq
 
 
-
-# Computes and keeps maximum of channel activations for all images, 
-# so that the top k images with the highest maximum activation value can be identified for each channel
 def compute_tally_topk (model, dataset, sample_size, result_dir):
+    """ Computes and keeps maximum of filter activations for all images, so that the top k images with highest max activation for each filter can be found """
+
     pbar.descnext('topk')
     def compute_image_max(batch, *args):
         image_batch = batch.cuda()
@@ -172,19 +179,14 @@ def compute_tally_topk (model, dataset, sample_size, result_dir):
     return topk
 
 
-
-# Computes the best concepts matching each channel based on IoUs between concept segmentations and channel activations
 def compute_top_channel_concepts (model, segmodel, upfn, dataset, rq, seglabels, segcatlabels, sample_size, renorm, result_dir):
-    # "level_high" was formerly named "level_at_99"
-    # "condi_high" was formerly named "condi99"
-    # "iou_high" was formerly named "iou_99"
-    # "unit_label_high" was formerly named "unit_label_99"
+    """ Computes the best concepts matching each filter based on IoUs between concept segmentations and filter activations """
 
-    # Getting the target quantile values of channels: 
+    # Getting the target quantile values of filters: 
     level_high = rq.quantiles(configs.activation_high_thresh).cuda()[None,:,None,None]
     level_low = rq.quantiles(configs.activation_low_thresh).cuda()[None,:,None,None]
     
-    # Computing the overlap between all the channel activations and all the image segmentations: 
+    # Computing the overlap between all the filter activations and all the image segmentations: 
     def compute_conditional_indicator(batch, *args):
         image_batch = batch.cuda()
         seg = segmodel.segment_batch(renorm(image_batch), downsample=4)
@@ -200,7 +202,7 @@ def compute_top_channel_concepts (model, segmodel, upfn, dataset, rq, seglabels,
             num_workers=10, pin_memory=True,
             cachefile=os.path.join(result_dir, 'condi_high.npz'))
     
-    # Computing the IoU between each channel and all the concepts: 
+    # Computing the IoU between each filter and all the concepts: 
     iou_high = tally.iou_from_conditional_indicator_mean(condi_high)
 
     # Identifying the concept with max IoU for each channel: 
@@ -238,8 +240,9 @@ def compute_top_channel_concepts (model, segmodel, upfn, dataset, rq, seglabels,
     return unit_label_high, label_list, level_high, level_low
 
 
-
 def save_final_data (unit_label_high, label_list, level_high, level_low, result_dir):
+    """ Saves the final results of identification, including filter-concept mappings and top activated images for each filter """
+
     display(IPython.display.SVG(experiment.graph_conceptcatlist(label_list)))
     experiment.save_conceptcat_graph(os.path.join(result_dir, 'concepts_high.svg'), label_list)
 
@@ -279,8 +282,9 @@ def save_final_data (unit_label_high, label_list, level_high, level_low, result_
     #     print('{}: {}'.format(i,q))
     
 
-
 def concept_identification (dataset_path, model_file_path, segmenter_model_path, identification_result_path):
+    """ Main process of POEM concept identification using the latest version of network dissection """
+
     print('----------------------------------------------')
     print('Concept identification ...')
 

@@ -2,7 +2,8 @@ import sys
 
 
 def save_imported_packages(packages_path):
-    # Saving imported packages and their versions: 
+    """ Collects and saves the list of imported packages and their versions for reproducibility purposes """    
+
     modules_info = []
 
     for module in sys.modules:
@@ -29,8 +30,9 @@ def save_imported_packages(packages_path):
             f.write('{} {}\n'.format(m[0], m[1]))
 
 
-
 def extract_class_titles (ds_name, binning_classes):
+	""" Extracts titles of classes from the dataset configuration title """
+
 	ctitles = {}
 	name_parts = ds_name.split('_')
 	if len(name_parts) <= 1:

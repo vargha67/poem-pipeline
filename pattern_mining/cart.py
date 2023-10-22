@@ -6,8 +6,9 @@ from matplotlib import pyplot as plt
 from sklearn import tree
 
 
-
 def count_tree_leaves(model):
+    """ Counts number of nodes, leaves and the max depth of the tree """
+
     n_nodes = model.tree_.node_count
     children_left = model.tree_.children_left
     children_right = model.tree_.children_right
@@ -30,8 +31,9 @@ def count_tree_leaves(model):
     return n_nodes, n_leaves, max_depth
 
 
-
 def get_rule_feature_value(thresh, is_left):
+    """ Returns the feature value for a left/right node split in the tree """
+
     if not configs.binning_features:
         return 0 if is_left else 1
 
@@ -47,8 +49,9 @@ def get_rule_feature_value(thresh, is_left):
             return 1.5   # means either 1 or 2
 
 
-
 def get_pattern_description (pattern):
+    """ Returns a human-readable description of a rule/pattern """
+
     antecedents = []
     for attr in list(pattern.keys()): 
         if (attr not in configs.meta_cols) and (pattern[attr] != -1):
@@ -62,8 +65,9 @@ def get_pattern_description (pattern):
     return desc
 
 
-
 def extract_save_rules(model, feature_names, leaves_stats, n_rows, output_path):
+    """ Extracts and saves the rules/patterns by traversing the decision tree """
+
     rows_list = []
     node_features = model.tree_.feature
     node_thresholds = model.tree_.threshold
@@ -106,8 +110,9 @@ def extract_save_rules(model, feature_names, leaves_stats, n_rows, output_path):
     df.to_csv(output_path, index=False)
 
 
-
 def evaluate_predictions(Y_list, classes, base_labels, preds, pred_leaves, leaves_stats):
+    """ Evaluates the model predictions based on accuracy and information gain """
+
     true_count = 0
     true_labels = []
     pred_labels = []
@@ -139,8 +144,9 @@ def evaluate_predictions(Y_list, classes, base_labels, preds, pred_leaves, leave
     return base_KL, final_KL, info_gain, tree_acc
 
 
-
 def train_evaluate_tree(X, Y, Y_true, classes, base_labels, model_params, feature_names):
+    """ Trains and evaluates the decision tree """
+
     print("----------------------")
     print('Training and evaluating tree with params:', model_params)
     t1 = datetime.datetime.now()
@@ -213,8 +219,9 @@ def train_evaluate_tree(X, Y, Y_true, classes, base_labels, model_params, featur
     return model, leaves_stats, n_leaves, info_gain, tree_acc
 
 
-
 def run_cart (concepts_file_path, cart_patterns_path):
+    """ Main process of running CART (decision trees) to find patterns in the image concepts dataset """
+
     print('----------------------------------------------')
     print('CART pattern mining ...')
 

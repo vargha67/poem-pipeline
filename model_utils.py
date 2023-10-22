@@ -4,7 +4,8 @@ from torchvision import models
 
 
 def vgg16_model (*args, **kwargs):
-    # A version of vgg16 model where layers are given their research names: 
+    """ Returns a version of vgg16 model where layers are given their research names """
+
     model = models.vgg16(*args, **kwargs)
     model.features = nn.Sequential(OrderedDict(zip([
         'conv1_1', 'relu1_1',

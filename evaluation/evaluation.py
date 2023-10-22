@@ -5,8 +5,9 @@ import pandas as pd
 from IPython.display import display
 
 
-
 def evaluate_all_patterns (concepts_file_path, cart_patterns_path, ids_patterns_path, exp_patterns_path, evaluation_result_path):
+    """ Evaluates patterns from different rule mining methods using different criteria such as support, confidence, accuracy, info gain """
+
     print('----------------------------------------------')
     print('Patterns evaluation ...')
 
@@ -100,8 +101,9 @@ def evaluate_all_patterns (concepts_file_path, cart_patterns_path, ids_patterns_
     return evaluations_path_list
 
 
-
 def evaluate_all_patterns_old (identification_result_path, concepts_file_path, patterns_base_path, evaluation_result_file_path):
+    """ Old version of evaluating patterns from rule mining methods using different criteria such as support, confidence, accuracy, info gain """
+
     eval_results = {}
     if os.path.exists(evaluation_result_file_path):
         with open(evaluation_result_file_path, 'r') as f:

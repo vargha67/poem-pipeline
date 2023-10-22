@@ -17,8 +17,9 @@ from new_dissection.netdissect.easydict import EasyDict
 from new_dissection.experiment import dissect_experiment as experiment
 
 
-
 def load_model (model_file=None):
+    """ Loads the CNN model in the named format needed for concept attribution """
+
     if configs.model_name == 'vgg16':
         model = vgg16_model(num_classes=configs.num_classes)
     else:
@@ -29,8 +30,9 @@ def load_model (model_file=None):
     return model
 
 
-
 def load_data (dataset_dir=None): 
+    """ Loads and preprocesses the explanation dataset """
+
     transform = transforms.Compose([
         transforms.Resize(256),
         transforms.CenterCrop(configs.image_size),
@@ -47,8 +49,9 @@ def load_data (dataset_dir=None):
     return dataset, data_loader
 
 
-
 def load_channels_data (tally_path):
+    """ Loads the filters-concepts map and the related activation thresholds from the identification results """
+
     f = open(tally_path)
     tally_data = json.load(f)
     if "units" not in tally_data:
@@ -91,8 +94,9 @@ def load_channels_data (tally_path):
     return channels_map, channels, concepts
 
 
-
 def get_binned_predictions (logits):
+    """ Decides the certainty of the model predictions based on logits in case of binning classes enabled """
+
     # If the softmax probability for any of the other classes is higher than the certainty_ratio (e.g. 2/3) of the top class probability, 
     # then it will be considered as `maybe` instead of certain. 
     # Number for maybe status of each class is equal to the class number plus total number of classes (e.g. 2 for 0 class in a binary setting).
@@ -112,8 +116,9 @@ def get_binned_predictions (logits):
     return preds.cpu().numpy()
 
 
-
 def plot_activation_histogram (act):
+    """ Plots the histogram of activation-gradient values for an image, showing that most values are in the top 95th percentile """
+
     hist, bin_edges = torch.histogram(act, bins=10)
     hist = hist.tolist()
     bin_edges = bin_edges.tolist()
@@ -130,9 +135,10 @@ def plot_activation_histogram (act):
     plt.show()
 
 
-
 def plot_sample_image_activations (dataset, image, channel, seg, act, grad, act_grad, upact_grad, 
                                     channels_map, seg_concept_index_map, image_threshs):
+    """ Plots the highlighted segmentation, activation-gradients and their overlap for a sample image """
+
     act = act[None, :, :, :]
     grad = grad[None, :, :, :]
     act_grad = act_grad[None, :, :, :]
@@ -194,8 +200,9 @@ def plot_sample_image_activations (dataset, image, channel, seg, act, grad, act_
     show([[iv.masked_image(image, overlap_mask.float(), level=0.99)]])
 
 
-
 def extract_concepts_from_image (act, upact, seg, path, channels_map, seg_concept_index_map, channels, concepts, image_threshs=None):
+    """ Identifies the concepts attributed to an image based on filter-concept mappings and overlap between segmentations and activation-gradients """
+
     num_channels = act.shape[0]
     image_concepts = {con:configs.low_value for con in concepts}  # used to hold the high/mid/low value of each concept for this image (used for image concepts file and saving activation images process)
     image_channels = {ch:configs.low_value for ch in channels}    # used to hold the high/mid/low value of each channel for this image (used for image channels file and saving activation images process)
@@ -204,6 +211,7 @@ def extract_concepts_from_image (act, upact, seg, path, channels_map, seg_concep
     image_overlap_ratio = 0
     n_channels_attributed = 0
 
+    # Iterating over the filters to identify those whose related concept can be attributed to the image: 
     for ch in channels:
         ch_index = ch - 1
         ch_upact = upact[ch_index]
@@ -217,19 +225,22 @@ def extract_concepts_from_image (act, upact, seg, path, channels_map, seg_concep
         if (ch_upact is None) or (not is_valid) or (channel_concept is None) or (channel_category is None) or (channel_high_thresh is None):
             continue
 
-        # Checking whether the channel concept can be considered as high value for this image: 
+        # Checking whether the filter concept can be considered as high value for this image: 
         is_high = False
         ch_upact_high_mask = (ch_upact > channel_high_thresh)
         num_high_thresh = np.sum(ch_upact_high_mask.numpy())
 
+        # Making sure that there is a minimum number of high-value activation-gradient pixels for this filter: 
         if num_high_thresh >= configs.min_thresh_pixels:
             if configs.check_seg_overlap:
+                # Checking whether the filter concept exists among the segmentation concepts of this image: 
                 seg_concept_index = seg_concept_index_map[channel_concept] if channel_concept in seg_concept_index_map else None
                 cat_index = configs.category_index_map[channel_category] if channel_category in configs.category_index_map else None
                 if (seg_concept_index is None) or (cat_index is None):
                     print('Error: Missing segmentation concept index ({}) or category index ({}) for channel {} mapped to concept {} from category {}'
                         .format(seg_concept_index, cat_index, ch, channel_concept, channel_category))
                 else:
+                    # Checking overlap of concept segmentation and activation-gradient map: 
                     target_seg = seg[cat_index]
                     target_seg_concept_mask = (target_seg == seg_concept_index)
                     num_concept_seg = np.sum(target_seg_concept_mask.numpy())
@@ -274,7 +285,7 @@ def extract_concepts_from_image (act, upact, seg, path, channels_map, seg_concep
         if not configs.binning_features:
             continue
 
-        # Checking whether the channel concept can be considered as mid value for this image: 
+        # Checking whether the filter concept can be considered as mid value for this image (only in case of binning features enabled): 
         is_mid = False
         ch_upact_mid_mask = (ch_upact > channel_low_thresh)
         num_mid_thresh = np.sum(ch_upact_mid_mask.numpy())
@@ -328,11 +339,13 @@ def extract_concepts_from_image (act, upact, seg, path, channels_map, seg_concep
     return image_concepts, image_channels, image_concepts_counts, image_channels_counts, image_overlap_ratio, n_channels_attributed
 
 
-
 def extract_concepts (model, segmodel, upfn, renorm, data_loader, channels_map, seg_concept_index_map, channels, concepts):
+    """ Attributes concepts to the images in the explanation dataset and generates the image concepts dataset """
+
     activations = []
     gradients = []
 
+    # Registering hooks to obtain image activations and gradients during passing the images through the model: 
     def activations_hook (module, input, output):
         activations.append(output.detach().cpu())
         if configs.check_gradients:
@@ -384,15 +397,22 @@ def extract_concepts (model, segmodel, upfn, renorm, data_loader, channels_map, 
         if configs.check_gradients:
             one_hot = torch.zeros_like(output).cuda()
             one_hot.scatter_(1, preds[:, None], 1.0)
+
+            # Backward propagation to gather the output gradients with respect to the target layer filters: 
             output.backward(gradient=one_hot, retain_graph=True)
             grads = gradients[0]
-
             wgrads = grads
+
+            # Pooling/averaging the gradients if needed (based on GradCAM method): 
             if configs.pool_gradients:
                 wgrads = torch.mean(grads, dim=[2,3], keepdims=True)
 
+            # Multiplying (weighting) the activations by the gradients (based on GradCAM method): 
             acts = acts * wgrads
+
+            # Only keeping activation-gradients with positive relation to the output (based on GradCAM method): 
             acts = F.relu(acts)
+
             # if i == 0:
             #     print('output: {}, preds: {}, one_hot: {}, grads: {}, wgrads: {}'
             #         .format(output.shape, preds.shape, one_hot.shape, grads.shape, wgrads.shape))
@@ -404,7 +424,10 @@ def extract_concepts (model, segmodel, upfn, renorm, data_loader, channels_map, 
         if configs.binning_classes:
             preds = get_binned_predictions(output)
 
+        # Upsampling (resizing) the activation-gradients to match the image size: 
         upacts = upfn(acts)
+
+        # Segmenting the image into its concepts: 
         segs = None
         if configs.check_seg_overlap:
             segs = segmodel.segment_batch(renorm(images_gpu), downsample=4).cpu()
@@ -428,13 +451,14 @@ def extract_concepts (model, segmodel, upfn, renorm, data_loader, channels_map, 
             _, fname = os.path.split(path)
 
             # In case of checking gradients, we compute the specific activation/gradient threshold 
-            # for an image based on the range of the values of all the channels of the image: 
+            # for an image based on the range of the values of all the filters of the image: 
             image_threshs = {'high_thresh': 0, 'low_thresh': 0}
             if configs.check_gradients:
                 image_threshs['high_thresh'] = torch.quantile(act, q=configs.gradient_high_thresh).item()
                 if configs.binning_features:
                     image_threshs['low_thresh'] = torch.quantile(act, q=configs.gradient_low_thresh).item()
 
+            # Extracts concepts attributed to the image: 
             image_concepts, image_channels, image_concepts_counts, image_channels_counts, image_overlap_ratio, n_channels_attributed = \
                 extract_concepts_from_image(act, upact, seg, path, channels_map, seg_concept_index_map, channels, concepts, image_threshs)
 
@@ -504,8 +528,9 @@ def extract_concepts (model, segmodel, upfn, renorm, data_loader, channels_map, 
     return concepts_df, channels_df, acts_list, image_channels_counts_list, image_threshs_list, total_overlap_ratio
 
 
-
 def filter_extracted_concepts (concepts_df, channels_df, channels_map):
+    """ Filters out the weakest concepts from the image concepts dataset using variance thresholding and mutual information """
+
     preds_df = concepts_df['pred']
     meta_cols = ['pred', 'label', 'id', 'file', 'path']
     meta_df = concepts_df[meta_cols]
@@ -520,6 +545,7 @@ def filter_extracted_concepts (concepts_df, channels_df, channels_map):
     print('Initial concepts ({}): {}'.format(len(initial_concepts), initial_concepts))
 
     if configs.filter_concepts:
+        # Filtering out concepts related to less than a percentage of images: 
         var_selector = VarianceThreshold(threshold=(configs.low_variance_thresh * (1 - configs.low_variance_thresh)))
         var_selector.fit(cons_df)
         var_col_indices = var_selector.get_support(indices=True)
@@ -528,6 +554,7 @@ def filter_extracted_concepts (concepts_df, channels_df, channels_map):
         var_removed_concepts = set(initial_concepts) - set(var_filtered_concepts)
         #print('Concepts removed by variance filtering ({}): {}'.format(len(var_removed_concepts), var_removed_concepts))
 
+        # Keeping only the max number of concepts using mutual information if current number of concepts is more than that yet: 
         k = configs.max_concepts if len(var_filtered_concepts) > configs.max_concepts else 'all'
         mut_selector = SelectKBest(mutual_info_classif, k=k)
         mut_selector.fit(cons_df, preds_df)
@@ -553,10 +580,11 @@ def filter_extracted_concepts (concepts_df, channels_df, channels_map):
     return filtered_concepts_df, filtered_channels_df, filtered_concepts, filtered_channels
 
 
-
 def save_activation_images_of_image (iv, image_index, image_path, image_fname, acts, img_concepts_row, img_channels_row, 
                                      image_channels_counts, channels_map, concepts, output_dir, image_threshs=None):
-    image_activated_channels = [k for k,v in image_channels_counts.items() if v > 0]   # Only keep those channels which have been either mid or high for the image
+    """ Saves a single image with its activation-gradients of top filters highlighted for later visualization purposes """
+
+    image_activated_channels = [k for k,v in image_channels_counts.items() if v > 0]   # Only keep those filters which have been either mid or high for the image
     if len(image_activated_channels) == 0:
         # print('Image {} with path {} has no activated channels!'.format(image_index, image_path))
         return 0
@@ -634,10 +662,11 @@ def save_activation_images_of_image (iv, image_index, image_path, image_fname, a
     return num_act_images
 
 
-
 def save_image_concepts_dataset (concepts_df, channels_df, image_channels_counts_list, image_threshs_list, total_overlap_ratio, 
                                  acts_list, upfn, dataset, channels_map, filtered_concepts, filtered_channels, 
                                  concepts_output_path, channels_output_path, activation_images_path, concepts_evaluation_file_path):
+    """ Saves the images concepts dataset and top activation-gradient images for each image """
+
     if os.path.exists(activation_images_path):
         shutil.rmtree(activation_images_path)
     os.makedirs(activation_images_path)
@@ -703,9 +732,10 @@ def save_image_concepts_dataset (concepts_df, channels_df, image_channels_counts
         json.dump(eval_results, f, indent=4)
 
 
-
 def concept_attribution (dataset_path, model_file_path, segmenter_model_path, identification_result_path, concepts_file_path, 
                          channels_file_path, activation_images_path, concepts_evaluation_file_path):
+    """ Main process of POEM concept attribution """
+
     print('----------------------------------------------')
     print('Concept attribution ...')
     

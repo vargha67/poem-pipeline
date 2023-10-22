@@ -1,17 +1,22 @@
 # POEM: Pattern-Oriented Explanations of CNN Models
 
-This project includes the codes of the POEM pipeline which can be used to explain image classifier CNN models 
-using patterns of semantic concepts. 
+This project includes the source codes of the POEM pipeline, which can be used to explain image classifier CNN models 
+using patterns of semantic concepts. The following research paper explains POEM's pipeline details and 
+the related quantitative and qualitative experiments: 
 
-The POEM's web-based demo system is temporarily available at [this address](http://poem.lg-research-1.uwaterloo.ca/). 
-Note that the demo system is based on an older version of the pipeline and only shows patterns without any inactivated (No) concepts. 
+```
+Vargha Dadvar, Lukasz Golab, and Divesh Srivastava. 2023. 
+POEM: Pattern-Oriented Explanations of Convolutional Neural Networks. 
+Proc. VLDB Endow. 16, 11 (July 2023), 3192–3200. 
+https://doi.org/10.14778/3611479.3611518
+```
 
-Details about the demo system are explained in the following VLDB paper. 
-The research paper explaining the pipeline details and the quantitative and qualitative experiments will be added soon. 
+The POEM's web-based demo system, which is based on an older version of the pipeline and 
+only shows patterns without any inactivated (No) concepts, is introduced in the following paper: 
 
 ```
 Vargha Dadvar, Lukasz Golab, and Divesh Srivastava. 2022. 
-POEM: pattern-oriented explanations of CNN models. 
+POEM: Pattern-Oriented Explanations of CNN Models. 
 Proc. VLDB Endow. 15, 12 (August 2022), 3618–3621. 
 https://doi.org/10.14778/3554821.3554858
 ```
@@ -19,7 +24,7 @@ https://doi.org/10.14778/3554821.3554858
 ## Running Instructions: 
 
 The project can be run on a Unix-based system with an Nvidia CUDA-enabled GPU by executing the following commands. 
-The configs including the target CNN model and dataset can be changed in `configs` file. 
+The configs including the target CNN model and dataset can be changed in the `configs` file. 
 Note that running the entire pipeline can take a few hours depending on the model depth, dataset size, pattern mining methods, and other configs.
 
 ```

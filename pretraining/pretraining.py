@@ -14,8 +14,9 @@ from torch.utils.data import DataLoader
 from torchvision import datasets, transforms, models
 
 
-
 def prepare_data (dataset_path, images_path=None, labels_path=None): 
+    """ Preprocesses and splits the dataset into training and validation/explanation sets """
+
     train_transform = transforms.Compose([
         transforms.Resize(256),
         transforms.RandomCrop(configs.image_size),
@@ -99,6 +100,7 @@ def prepare_data (dataset_path, images_path=None, labels_path=None):
     train_loader = DataLoader(train_set, batch_size=configs.train_batch_size, shuffle=True)
     valid_loader = DataLoader(valid_set, batch_size=configs.train_batch_size, shuffle=True)
 
+    # Saving a smaller subset of the validation set for explanation in case of a lower explanation ratio: 
     explanation_loader = valid_loader
     valid_ratio = 1.0 - configs.train_ratio
     if configs.explanation_ratio < valid_ratio:
@@ -114,8 +116,9 @@ def prepare_data (dataset_path, images_path=None, labels_path=None):
     return train_loader, valid_loader, explanation_loader
 
 
-
 def save_data_subset (data_subset, target_dataset_dir):
+    """ Saves the dataset subset selected for explanation to a target directory """
+
     images_info = data_subset.samples
     class_to_idx = data_subset.class_to_idx
     #print('class_to_idx:', class_to_idx)
@@ -142,8 +145,9 @@ def save_data_subset (data_subset, target_dataset_dir):
         shutil.copy(path, target_path)
 
 
-
 def pretrained_model (base_model_file=None):
+    """ Loads the pretrained model (from file or Torchvision) and prepares it for the selected type of finetuning """
+
     # When loading the model from disk, the "pretrained" parameter should be false and "num_classes" should be set based on the classes in the loaded model file
     # When not loading the model from disk, the "pretrained" parameter should be true, and "num_classes" should not be provided, 
     # or it should be equal to the classes in the pretrained model (e.g. ImageNet in PyTorch)
@@ -188,8 +192,9 @@ def pretrained_model (base_model_file=None):
     return model
 
 
-
 def train_epoch (model, optimizer, criterion, train_loader, valid_loader):
+    """ Runs an epoch of training and validation for the model """
+
     model.train()
     train_loss = 0
     train_acc = 0
@@ -254,8 +259,9 @@ def train_epoch (model, optimizer, criterion, train_loader, valid_loader):
     return train_loss, train_acc, val_loss, val_acc
 
 
-
 def train (model, model_path, train_loader, valid_loader): 
+    """ Trains and validates the model for multiple epochs """
+
     model_params = [p for p in model.parameters() if p.requires_grad]
     #print('Number of params to learn:', len(model_params))
     
@@ -297,8 +303,9 @@ def train (model, model_path, train_loader, valid_loader):
     return train_losses, train_accs, val_losses, val_accs
 
 
-
 def plot_results (train_losses, train_accs, val_losses, val_accs):
+    """ Plots the training and validation accuracy graphs of the model over epochs """
+
     # loss: 
     plt.plot(train_losses)
     plt.plot(val_losses)
@@ -318,8 +325,9 @@ def plot_results (train_losses, train_accs, val_losses, val_accs):
     plt.show()
 
 
-
 def pretrain_model (full_dataset_path, dataset_path, base_model_file_path, model_file_path):
+    """ Main process of finetuning the CNN model and preparing the explanation dataset """
+
     print('----------------------------------------------')
     print('Pretraining the model ...')
 

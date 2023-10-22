@@ -5,8 +5,9 @@ import main_process
 import os, shutil
 
 
-
 def concept_identification (broden_dataset_path, model_file_path, identification_result_path):
+    """ Main process of CNN2DT concept identification using the old version of network dissection """
+
     print('----------------------------------------------')
     print('Concept identification ...')
 

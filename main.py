@@ -21,6 +21,7 @@ from visualization import visualization
 
 
 def run_pipeline():
+    """ Main routine which runs the pipeline steps based on the configs """
 
     # Initial configurations: 
     torch.backends.cudnn.benchmark = True
@@ -75,7 +76,7 @@ def run_pipeline():
 
     t_start_total = datetime.datetime.now()
 
-    # Model pretraining: 
+    # Model pretraining/finetuning: 
     if configs.run_pretraining:
         t_start = datetime.datetime.now()
         if not os.path.exists(full_dataset_path):
